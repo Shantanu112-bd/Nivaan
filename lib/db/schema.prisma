@@ -1,0 +1,116 @@
+// NIVAAN database schema.
+// Datasource + generator scaffolded in Phase 0; the six models below added in
+// Phase 2, transcribed exactly from docs/data-model.md.
+//
+// INVARIANT (docs/data-model.md, docs/product-spec.md): no table contains raw
+// identity data (name, DOB, Aadhaar number, or any document/QR/XML contents).
+// walletAddress/ownerWallet are public chain addresses; consentHash is a hash of
+// static versioned consent text, not user data. Any migration adding a
+// PII-shaped column is a scope violation — flag it before merging.
+
+// v7's new default generator (prisma-client-js is deprecated). It requires an
+// explicit output dir (gitignored) and is imported from that path via
+// lib/db/prisma.ts — regenerate with `npm run db:generate` after schema edits.
+generator client {
+  provider = "prisma-client"
+  output   = "./generated/prisma"
+}
+
+// Prisma 7 no longer accepts `url` in the datasource block (error P1012). The
+// connection URL for Migrate/CLI lives in prisma.config.ts, and the runtime
+// PrismaClient is constructed with a driver adapter — see lib/db/prisma.ts.
+datasource db {
+  provider = "postgresql"
+}
+
+model AuthNonce {
+  id            String    @id @default(cuid())
+  walletAddress String
+  nonce         String    @unique
+  used          Boolean   @default(false)
+  createdAt     DateTime  @default(now())
+  expiresAt     DateTime
+
+  @@index([walletAddress])
+}
+
+model Credential {
+  id            String    @id @default(cuid())
+  did           String    @unique
+  tier          String    // e.g. "kyc_tier_1"
+  jurisdiction  String    // "IN" for MVP
+  status        CredentialStatus @default(ACTIVE)
+  issuedAt      DateTime  @default(now())
+  expiresAt     DateTime
+  ownerWallet   String    // links to the session's wallet address, not a PII field
+
+  consentLogs        ConsentLog[]
+  proofRequests       ProofRequest[]
+  revocation          RevokedCredential?
+
+  @@index([ownerWallet])
+  @@index([status])
+}
+
+enum CredentialStatus {
+  ACTIVE
+  EXPIRED
+  REVOKED
+}
+
+model RevokedCredential {
+  id            String    @id @default(cuid())
+  credentialId  String    @unique
+  credential    Credential @relation(fields: [credentialId], references: [id])
+  revokedAt     DateTime  @default(now())
+  reason        String?
+}
+
+model ConsentLog {
+  id            String    @id @default(cuid())
+  credentialId  String
+  credential    Credential @relation(fields: [credentialId], references: [id])
+  consentHash   String    // hash of the exact consent text shown, not the underlying data
+  timestamp     DateTime  @default(now())
+
+  @@index([credentialId])
+}
+
+model ProofRequest {
+  id            String    @id @default(cuid())
+  credentialId  String
+  credential    Credential @relation(fields: [credentialId], references: [id])
+  targetChain   ChainTarget
+  policyId      String
+  status        ProofStatus @default(PENDING)
+  failureReason String?
+  createdAt     DateTime  @default(now())
+
+  verificationResult VerificationResult?
+
+  @@index([credentialId])
+  @@index([status])
+}
+
+enum ChainTarget {
+  SOROBAN
+  SEPOLIA
+}
+
+enum ProofStatus {
+  PENDING
+  READY
+  FAILED
+}
+
+model VerificationResult {
+  id             String    @id @default(cuid())
+  proofRequestId String    @unique
+  proofRequest   ProofRequest @relation(fields: [proofRequestId], references: [id])
+  chain          ChainTarget
+  result         Boolean
+  attestationSig String    // the backend signature submitted on-chain, stored for audit/debugging
+  verifiedAt     DateTime  @default(now())
+
+  @@index([chain])
+}

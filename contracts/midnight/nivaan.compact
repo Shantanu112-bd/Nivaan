@@ -1,0 +1,3 @@
+// NIVAAN Minokawa contract (Compact) — scaffolded Phase 0.
+// Witness getAadhaarTestProof() + circuits proveComplianceTier/issueCredential/checkNotRevoked + sealed DID-bound ledger entry.
+// Implemented in Phase 5 per docs/architecture.md section 7 and docs/roadmap.md.
