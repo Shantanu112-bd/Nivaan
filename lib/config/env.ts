@@ -27,8 +27,10 @@ export const REQUIRED_ENV_VARS = [
   'ANON_AADHAAR_TEST_KEY',
   'SOROBAN_RPC_URL',
   'SOROBAN_TESTNET_SECRET',
+  'SOROBAN_REGISTRY_CONTRACT_ID',
   'SEPOLIA_RPC_URL',
   'SEPOLIA_DEPLOYER_KEY',
+  'SEPOLIA_REGISTRY_ADDRESS',
   'BACKEND_ATTESTATION_SIGNING_KEY',
   'ISSUER_ADMIN_KEY',
   'DEMO_VERIFIER_KEY',
@@ -82,6 +84,11 @@ export const env = {
   get sorobanTestnetSecret(): string {
     return read('SOROBAN_TESTNET_SECRET');
   },
+  // Deployed Soroban registry contract id (C...), recorded after CLI deploy
+  // (docs/architecture.md §12). Needed to broadcast/read attestations on Soroban.
+  get sorobanRegistryContractId(): string {
+    return read('SOROBAN_REGISTRY_CONTRACT_ID');
+  },
 
   // --- Sepolia / EVM testnet ---
   get sepoliaRpcUrl(): string {
@@ -89,6 +96,11 @@ export const env = {
   },
   get sepoliaDeployerKey(): string {
     return read('SEPOLIA_DEPLOYER_KEY');
+  },
+  // Deployed Sepolia registry contract address (0x...), recorded after CLI deploy
+  // (docs/architecture.md §12). Needed to broadcast/read attestations on Sepolia.
+  get sepoliaRegistryAddress(): string {
+    return read('SEPOLIA_REGISTRY_ADDRESS');
   },
 
   // --- Backend trust root (ADR-001) — HIGHEST-PRIORITY SECRET ---
@@ -130,6 +142,16 @@ export function presentEnvVars(): Record<EnvVarName, boolean> {
       Boolean(process.env[name] && process.env[name]!.trim() !== ''),
     ]),
   ) as Record<EnvVarName, boolean>;
+}
+
+/**
+ * Of the given required variables, return those that are absent or blank — without
+ * throwing. Used by the chain adapters to build a `ChainAdapterNotConfiguredError`
+ * that lists exactly which deployment variables are missing, before touching a
+ * throwing getter. Returns NAMES only (never values), so it is safe to surface.
+ */
+export function missingEnvVars(names: readonly EnvVarName[]): EnvVarName[] {
+  return names.filter((name) => !process.env[name] || process.env[name]!.trim() === '');
 }
 
 /**

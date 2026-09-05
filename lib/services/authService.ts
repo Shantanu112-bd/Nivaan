@@ -144,6 +144,8 @@ interface SessionPayload {
 export interface SessionClaims {
   walletAddress: string;
   did: string;
+  /** When the session expires (derived from the token `exp`). */
+  expiresAt: Date;
 }
 
 function b64url(buf: Buffer): string {
@@ -197,5 +199,9 @@ export function verifySessionToken(token: string | undefined | null): SessionCla
     return null;
   }
 
-  return { walletAddress: payload.sub, did: payload.did };
+  return {
+    walletAddress: payload.sub,
+    did: payload.did,
+    expiresAt: new Date(payload.exp * 1000),
+  };
 }

@@ -74,6 +74,7 @@ describe('session token', () => {
     expect(verifySessionToken(token)).toEqual({
       walletAddress: '0xabc',
       did: 'did:nivaan:0xabc',
+      expiresAt: new Date(exp * 1000),
     });
   });
 
@@ -158,10 +159,11 @@ describe('verifyAndCreateSession', () => {
       where: { nonce: 'n1' },
       data: { used: true, walletAddress: '0xabc' },
     });
-    // The returned token verifies back to the wallet's claims.
+    // The returned token verifies back to the wallet's claims, incl. expiry.
     expect(verifySessionToken(res.sessionToken)).toEqual({
       walletAddress: '0xabc',
       did: 'did:nivaan:0xabc',
+      expiresAt: res.sessionExpiresAt,
     });
   });
 
