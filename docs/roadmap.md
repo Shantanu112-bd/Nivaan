@@ -134,7 +134,9 @@ If a phase reveals that a decision in `docs/decisions.md` was wrong, don't silen
 ## Environment variables & external services
 
 **Required for MVP:**
-`MIDNIGHT_TESTNET_RPC`, `MIDNIGHT_WALLET_SEED`, `PROOF_SERVER_URL`, `ANON_AADHAAR_TEST_KEY`, `SOROBAN_RPC_URL`, `SOROBAN_TESTNET_SECRET`, `SEPOLIA_RPC_URL`, `SEPOLIA_DEPLOYER_KEY`, `BACKEND_ATTESTATION_SIGNING_KEY`, `ISSUER_ADMIN_KEY`, `DEMO_VERIFIER_KEY`, `DATABASE_URL`, `SESSION_SECRET`
+`MIDNIGHT_TESTNET_RPC`, `MIDNIGHT_WALLET_SEED`, `PROOF_SERVER_URL`, `ANON_AADHAAR_TEST_KEY`, `SOROBAN_RPC_URL`, `SOROBAN_TESTNET_SECRET`, `SOROBAN_REGISTRY_CONTRACT_ID`, `SEPOLIA_RPC_URL`, `SEPOLIA_DEPLOYER_KEY`, `SEPOLIA_REGISTRY_ADDRESS`, `BACKEND_ATTESTATION_SIGNING_KEY`, `ISSUER_ADMIN_KEY`, `DEMO_VERIFIER_KEY`, `DATABASE_URL`, `SESSION_SECRET`
+
+(`SOROBAN_REGISTRY_CONTRACT_ID` / `SEPOLIA_REGISTRY_ADDRESS` are the deployed registry addresses recorded after the CLI deploy — see the testnet deployment checklist and architecture §12; the chain adapters read them to broadcast/query attestations.)
 
 **Optional:**
 A custom domain for the deployed demo; a hosted (rather than local) Proof Server instance if demoing without a local Docker setup.
@@ -167,6 +169,8 @@ Live UIDAI AUA/KUA credentials, DigiLocker API access, Account Aggregator integr
 - [ ] All negative tests (bad signature, expired credential, revoked credential) pass, not just happy-path tests
 
 ## Testnet deployment checklist
+
+_Concrete, copy-pasteable CLI steps for the two registry contracts: see `docs/deployment.md` (which key goes where, Hardhat + Stellar CLI commands, capturing the addresses into env)._
 
 - [ ] Minokawa contract live on Midnight testnet, address recorded
 - [ ] Soroban registry contract live on Soroban testnet, address recorded

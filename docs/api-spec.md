@@ -29,6 +29,16 @@ Verifies a signed nonce and establishes a session.
 - **Errors:** `400` invalid signature, `401` nonce expired/unknown, `409` nonce already used
 - **Side effects:** marks nonce used, creates session
 
+### `GET /auth/session`
+
+Returns the current session's identity, or `401` if there is none. Lets the frontend reflect real login state across page loads — the session cookie is `HttpOnly`, so client JavaScript cannot read it directly.
+
+- **Auth required:** session cookie
+- **Request:** none
+- **Response `200`:** `{ "did": string, "expiresAt": string (ISO 8601) }` — `expiresAt` is when the current session expires
+- **Errors:** `401` no valid session (cookie missing, malformed, expired, or signature invalid)
+- **Side effects:** none
+
 ---
 
 ## Credentials
@@ -96,6 +106,16 @@ Unified result regardless of chain. Also the endpoint the demo verifier surface 
 - **Request:** none
 - **Response `200`:** `{ "verificationId": string, "chain": "soroban" | "sepolia", "result": boolean, "verifiedAt": string }`
 - **Errors:** `403`, `404`, `425` (too early — verification still pending, poll again)
+
+### `GET /demo-verifier/:id/result`
+
+Same-origin server-side proxy the demo-verifier surface polls, so the demo verifier never handles `DEMO_VERIFIER_KEY` in the browser. The client calls this route with only the verification id; the route runs server-side, confirms `DEMO_VERIFIER_KEY` is provisioned in its own environment (never read from a request header), and reads the result by calling the `verificationService.getVerificationResult` function **directly** — not by making an HTTP call to `GET /verify/:id/result`. Because the key stays server-side, it is never exposed to the browser bundle or a `NEXT_PUBLIC_*` variable.
+
+- **Auth required:** none from the client. Server-side only: the route reads `DEMO_VERIFIER_KEY` from its own environment. The key is never accepted from, nor returned to, the client.
+- **Request:** none
+- **Response `200`:** `{ "verificationId": string, "chain": "soroban" | "sepolia", "result": boolean, "verifiedAt": string }` — identical shape to `GET /verify/:id/result`
+- **Errors:** `404` unknown verification id, `425` (too early — verification still pending, poll again)
+- **Side effects:** none (read-only)
 
 ---
 
