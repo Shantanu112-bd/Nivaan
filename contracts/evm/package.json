@@ -1,0 +1,15 @@
+{
+  "name": "nivaan-evm-registry",
+  "version": "0.1.0",
+  "private": true,
+  "description": "NIVAAN Sepolia registry contract — verifies backend attestation (ADR-001), records result, rejects replays. Isolated Hardhat package; not part of the Next app.",
+  "scripts": {
+    "test": "hardhat test"
+  },
+  "devDependencies": {
+    "@nomicfoundation/hardhat-ethers": "^3.0.8",
+    "@openzeppelin/contracts": "^5.1.0",
+    "ethers": "^6.13.4",
+    "hardhat": "^2.22.17"
+  }
+}

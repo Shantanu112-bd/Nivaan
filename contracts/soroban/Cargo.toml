@@ -1,0 +1,33 @@
+[package]
+name = "nivaan-soroban-registry"
+version = "0.1.0"
+edition = "2021"
+publish = false
+license = "MIT"
+description = "NIVAAN Soroban registry — verifies backend attestation (ADR-001), records result, rejects replays."
+
+[lib]
+crate-type = ["lib", "cdylib"]
+doctest = false
+
+[dependencies]
+soroban-sdk = "25"
+
+# Dev-deps: `testutils` enables Env::register + the generated try_* client used by
+# the integration tests; k256/sha2 let the tests produce a REAL recoverable
+# secp256k1 signature with the backend key (mirrors lib/chains/attestation.ts), so
+# the negative test proves genuine signature checking rather than a stub.
+[dev-dependencies]
+soroban-sdk = { version = "25", features = ["testutils"] }
+k256 = { version = "0.13", features = ["ecdsa"] }
+sha2 = "0.10"
+
+[profile.release]
+opt-level = "z"
+overflow-checks = true
+debug = 0
+strip = "symbols"
+debug-assertions = false
+panic = "abort"
+codegen-units = 1
+lto = true

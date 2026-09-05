@@ -1,0 +1,21 @@
+{
+  // Type-checks the Midnight contract's TypeScript layer (the witness provider and
+  // its unit tests) as a build unit SEPARATE from the Next app. This layer depends on
+  // @anon-aadhaar/core, whose published package ships non-compiling raw TS source
+  // (see ./types/anon-aadhaar-core.d.ts); the scoped `paths` below points TypeScript
+  // at our typed shim for that one package. The root tsconfig excludes these files so
+  // `next build` never drags the contract toolchain into the app's type program.
+  //
+  // Run with:  npx tsc -p contracts/midnight/tsconfig.json   (or `npm run typecheck:contracts`)
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "target": "ES2020",
+    "noEmit": true,
+    "incremental": false,
+    "paths": {
+      "@anon-aadhaar/core": ["./types/anon-aadhaar-core.d.ts"]
+    }
+  },
+  "include": ["witnesses.ts", "../../tests/unit/nivaanCircuit.test.ts"],
+  "exclude": ["../../node_modules"]
+}
