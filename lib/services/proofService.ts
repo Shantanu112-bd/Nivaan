@@ -95,7 +95,7 @@ export async function createProofRequest(
       credentialId,
       targetChain,
       policyId,
-      status: ProofStatus.READY, // In database-free preview mode, mark ready so the verification step can be previewed
+      status: ProofStatus.PENDING,
       failureReason: null,
       createdAt: new Date(),
       updatedAt: new Date(),
