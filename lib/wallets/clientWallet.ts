@@ -28,8 +28,21 @@ export async function connectAndAuthenticate(): Promise<WalletSession> {
   // 2. Check for window.ethereum
   const ethereum = typeof window !== 'undefined' ? (window as any).ethereum : null;
   if (ethereum) {
-    const accounts = await ethereum.request({ method: 'eth_requestAccounts' });
+    let accounts: string[];
+    try {
+      accounts = await ethereum.request({ method: 'eth_requestAccounts' });
+    } catch (err: any) {
+      if (err?.code === 4001 || err?.message?.includes('User rejected')) {
+        throw new Error('Wallet connection canceled by user in MetaMask.');
+      }
+      throw err;
+    }
+
+    if (!accounts || accounts.length === 0) {
+      throw new Error('No accounts selected in MetaMask.');
+    }
     walletAddress = accounts[0];
+
     // EIP-1193 personal_sign standard expects hex-encoded UTF-8 message:
     const hexMessage = `0x${Array.from(new TextEncoder().encode(nonce))
       .map(b => b.toString(16).padStart(2, '0'))
@@ -40,13 +53,19 @@ export async function connectAndAuthenticate(): Promise<WalletSession> {
         method: 'personal_sign',
         params: [hexMessage, walletAddress],
       });
-    } catch {
+    } catch (err: any) {
+      if (err?.code === 4001 || err?.message?.includes('User rejected')) {
+        throw new Error('Signature request canceled by user in MetaMask.');
+      }
       try {
         signature = await ethereum.request({
           method: 'personal_sign',
           params: [walletAddress, hexMessage],
         });
-      } catch {
+      } catch (err2: any) {
+        if (err2?.code === 4001 || err2?.message?.includes('User rejected')) {
+          throw new Error('Signature request canceled by user in MetaMask.');
+        }
         signature = await ethereum.request({
           method: 'personal_sign',
           params: [nonce, walletAddress],
