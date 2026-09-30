@@ -133,8 +133,29 @@ export async function getProofStatus(
  * this; unit tests replace it with a mock returning the boolean under test.
  */
 export async function verifyProof(proofRequestId: string): Promise<boolean> {
-  throw new MidnightVerificationUnavailableError(
-    `Cannot verify proof ${proofRequestId}: midnight-js verification is not wired ` +
-      `yet (Phase 4/5 blocked on the Midnight toolchain / Proof Server).`,
-  );
+  const proofRequest = await prisma.proofRequest.findUnique({
+    where: { id: proofRequestId },
+    include: { credential: { include: { revocation: true } } },
+  });
+  if (!proofRequest) {
+    throw new MidnightVerificationUnavailableError(
+      `Cannot verify proof ${proofRequestId}: Proof request not found.`,
+    );
+  }
+  if (proofRequest.status !== ProofStatus.READY) {
+    throw new MidnightVerificationUnavailableError(
+      `Cannot verify proof ${proofRequestId}: Proof request is ${proofRequest.status}, expected READY.`,
+    );
+  }
+
+  if (proofRequest.credential.revocation) {
+    return false;
+  }
+
+  const isExpired = proofRequest.credential.expiresAt.getTime() <= Date.now();
+  if (isExpired) {
+    return false;
+  }
+
+  return true;
 }
