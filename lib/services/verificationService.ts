@@ -123,6 +123,7 @@ export interface VerificationResultView {
   /** Owner of the underlying credential — the route uses this to authorize a
    *  session caller (the demo-verifier key path bypasses ownership). */
   ownerWallet: string;
+  attestationSig?: string | null;
 }
 
 /**
@@ -151,5 +152,6 @@ export async function getVerificationResult(
     result: vr.result,
     verifiedAt: vr.verifiedAt,
     ownerWallet: vr.proofRequest.credential.ownerWallet,
+    ...(vr.attestationSig ? { attestationSig: vr.attestationSig } : {}),
   };
 }
