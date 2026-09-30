@@ -174,3 +174,11 @@ describe('getCredentialStatus', () => {
     expect(res.status).toBe(CredentialStatus.EXPIRED);
   });
 });
+
+describe('evaluateIssuanceCircuit', () => {
+  it('throws MidnightUnavailableError when aadhaarQrData is missing', async () => {
+    const { evaluateIssuanceCircuit, MidnightUnavailableError } = await import('@/lib/services/credentialService');
+    await expect(evaluateIssuanceCircuit({})).rejects.toBeInstanceOf(MidnightUnavailableError);
+  });
+});
+
