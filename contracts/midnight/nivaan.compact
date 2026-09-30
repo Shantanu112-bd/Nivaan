@@ -1,3 +1,149 @@
-// NIVAAN Minokawa contract (Compact) — scaffolded Phase 0.
-// Witness getAadhaarTestProof() + circuits proveComplianceTier/issueCredential/checkNotRevoked + sealed DID-bound ledger entry.
-// Implemented in Phase 5 per docs/architecture.md section 7 and docs/roadmap.md.
+// NIVAAN — Minokawa credential circuit (Compact).
+//
+// Source of truth: docs/architecture.md §5 (credential architecture) and §7
+// (Midnight architecture); docs/decisions.md ADR-001 (Path C — backend-attested
+// verification) and ADR-003 (Anon Aadhaar Test QR data source).
+//
+// Three logical parts, exactly per §7:
+//   1. Witness context  — getAadhaarTestProof(): the private Test-QR attributes,
+//      read CLIENT-SIDE (in the browser) by the TypeScript witness provider that
+//      wraps @anon-aadhaar/core. Raw identity data NEVER leaves the device and is
+//      NEVER sent to the backend (§2, §6, docs/security-model.md).
+//   2. Circuit context  — proveComplianceTier(threshold), issueCredential(),
+//      checkNotRevoked().
+//   3. Ledger context    — a DID-bound ("sealed": write-once per DID) credential
+//      record; the ONLY substantive fact ever disclose()'d to public state is an
+//      eligibility boolean (plus a coarse jurisdiction code); TTL is expressed
+//      against Midnight's monotonic Counter, never a raw Uint the caller could roll
+//      back (docs/security-model.md — credential forgery / replay controls).
+//
+// Privacy invariant to preserve when editing: age and the Aadhaar payload are
+// PRIVATE witness data. Only disclose() a derived boolean and the jurisdiction code.
+
+pragma language_version >= 0.14.0;
+
+import CompactStandardLibrary;
+
+// ---------------------------------------------------------------------------
+// 1. Witness context — private inputs, supplied on the user's device.
+// ---------------------------------------------------------------------------
+
+// Attributes the TS witness provider extracts from the Anon Aadhaar Test QR
+// (ADR-003). Deliberately minimal — only what the circuits below consume. Written
+// data-source-agnostic so the REAL_DATA swap (post-MVP) changes only the provider.
+export struct AadhaarAttrs {
+  ageYears: Uint<8>;           // derived from the DOB in the signed Test QR
+  jurisdictionCode: Uint<16>;  // numeric region code (e.g. ISO-3166 numeric)
+  nullifier: Bytes<32>;        // unique-per-identity tag (anti-duplication)
+}
+
+// Declared here, IMPLEMENTED IN TYPESCRIPT (the witness provider). This only fixes
+// the shape the circuits may call; it runs off-chain, on the holder's device.
+witness getAadhaarTestProof(): AadhaarAttrs;
+
+// ---------------------------------------------------------------------------
+// 3. Ledger context — public on-chain state.
+// ---------------------------------------------------------------------------
+
+// Per-DID credential record. "Sealed"/DID-bound (§5): issueCredential refuses to
+// overwrite an existing entry (see the assert below), so a DID's credential is
+// effectively write-once for its validity window.
+export struct CredentialRecord {
+  eligible: Boolean;           // the disclosed KYC-tier pass/fail — the only material fact
+  jurisdictionCode: Uint<16>;  // disclosed coarse region, for the demo verifier
+  issuedAtEpoch: Uint<64>;     // snapshot of `epoch` at issuance
+  ttlEpochs: Uint<64>;         // validity window measured in epoch ticks
+}
+
+// DID -> sealed credential record.
+export ledger credentials: Map<Bytes<32>, CredentialRecord>;
+
+// DID -> revocation flag. Populated by revoke() (dev-only admin, ADR-005); read by
+// checkNotRevoked(). The backend also checks revocation independently before it
+// attests (docs/architecture.md §5).
+export ledger revoked: Map<Bytes<32>, Boolean>;
+
+// Monotonic epoch clock. TTL is expressed relative to this Counter (NOT a raw Uint)
+// so a credential's effective expiry can only ever move forward as the clock ticks
+// (docs/security-model.md). Advanced by tick().
+export ledger epoch: Counter;
+
+// Total credentials issued — a demo/indexing metric only.
+export ledger issuedCount: Counter;
+
+// ---------------------------------------------------------------------------
+// 2. Circuit context.
+// ---------------------------------------------------------------------------
+
+// Advance the epoch clock by one tick. For the MVP the backend/issuer drives this
+// on a schedule; every TTL comparison below is relative to epoch.read().
+export circuit tick(): [] {
+  epoch.increment(1);
+}
+
+// proveComplianceTier — the actual credential-forgery control (docs/security-model.md:
+// "circuit logic is the real control here"). Reads the private Aadhaar attributes and
+// returns ONLY whether the holder meets this tier's age threshold. The age itself is
+// never disclosed — only the boolean is.
+export circuit proveComplianceTier(threshold: Uint<8>): Boolean {
+  const attrs = getAadhaarTestProof();
+  const meets = attrs.ageYears >= threshold;
+  return disclose(meets);
+}
+
+// issueCredential — writes the sealed, DID-bound ledger record. Discloses only the
+// eligibility boolean and the coarse jurisdiction; sets a Counter-relative TTL.
+// Refuses to overwrite an existing (sealed) entry for the DID.
+export circuit issueCredential(
+  did: Bytes<32>,
+  threshold: Uint<8>,
+  ttlEpochs: Uint<64>
+): Boolean {
+  // The DID is a public ledger key by design (§5, DID-bound entry) — disclose once.
+  const key = disclose(did);
+  assert(!credentials.member(key), "credential already issued for this DID");
+
+  const attrs = getAadhaarTestProof();
+  const eligible = attrs.ageYears >= threshold;
+
+  // Every witness-derived value written to public ledger state must be disclose()'d:
+  // the eligibility boolean, the coarse jurisdiction, and the caller-supplied TTL.
+  credentials.insert(key, CredentialRecord {
+    eligible: disclose(eligible),
+    jurisdictionCode: disclose(attrs.jurisdictionCode),
+    issuedAtEpoch: epoch.read() as Uint<64>,   // ledger state — already public
+    ttlEpochs: disclose(ttlEpochs)
+  });
+  issuedCount.increment(1);
+
+  return disclose(eligible);
+}
+
+// revoke — dev-only admin revocation (ADR-005). Admin authorization is enforced at
+// the transaction-submission / backend layer (ISSUER_ADMIN_KEY), not in-circuit, per
+// the MVP scope. Marks a DID revoked so checkNotRevoked() returns false thereafter.
+export circuit revoke(did: Bytes<32>): [] {
+  revoked.insert(disclose(did), true);
+}
+
+// checkNotRevoked — verification-time control (§5). True iff the DID has a live,
+// unexpired credential that has not been revoked. Mirrored independently by the
+// backend before it signs an attestation.
+export circuit checkNotRevoked(did: Bytes<32>): Boolean {
+  const key = disclose(did);
+  const present = credentials.member(key);
+  const isRevoked = revoked.member(key);
+
+  // Derived purely from public ledger state (indexed by the now-disclosed key), so
+  // the results below need no further disclose() — cf. verifyAgreement in the docs.
+  if (!present || isRevoked) {
+    return false;
+  }
+
+  const record = credentials.lookup(key);
+  const now = epoch.read() as Uint<64>;
+  const expiresAtEpoch = (record.issuedAtEpoch + record.ttlEpochs) as Uint<64>;
+  const live = now < expiresAtEpoch;
+
+  return record.eligible && live;
+}
