@@ -40,3 +40,10 @@ lib/db/generated/
 # --- test/coverage ---
 coverage/
 .nyc_output/
+
+# --- build cache & midnight local state ---
+tsconfig.tsbuildinfo
+midnight-level-db/
+*.ldb
+.midnight-*
+**/node_modules/

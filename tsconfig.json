@@ -19,7 +19,8 @@
       }
     ],
     "paths": {
-      "@/*": ["./*"]
+      "@/*": ["./*"],
+      "@anon-aadhaar/core": ["./contracts/midnight/types/anon-aadhaar-core.d.ts"]
     }
   },
   "include": [
@@ -30,5 +31,11 @@
     ".next/dev/types/**/*.ts",
     "**/*.mts"
   ],
-  "exclude": ["node_modules"]
+  "exclude": [
+    "node_modules",
+    "contracts/**",
+    "midnight-scaffold/**",
+    "scripts/**",
+    "tests/**"
+  ]
 }
