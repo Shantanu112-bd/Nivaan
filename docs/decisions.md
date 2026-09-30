@@ -73,3 +73,27 @@ Read this before questioning why something is built a specific way. Each ADR is 
 **Decision:** Prisma ORM against Postgres, hosted on Supabase or Neon's free tier. SQLite remains acceptable for local-only development.
 
 **Consequences:** Minimal added complexity (both offer a connection string and zero server management), real relational integrity for the six-table schema, no infrastructure to operate directly.
+
+---
+
+## ADR-007: Circuit seals on any issuance attempt for MVP
+
+**Status:** Decided.
+
+**Context:** The Minokawa circuit must seal the DID to prevent double issuance. However, if an ineligible user attempts to get a credential (e.g. under the required age), the circuit currently seals the DID on that attempt as well, preventing them from retrying even if they later become eligible.
+
+**Decision:** Accept this behavior for the MVP. The circuit seals on any issuance attempt.
+
+**Consequences:** A user who fails the eligibility check cannot retry with the same DID. "Insert only when eligible" (which would allow retry-after-18) is a known one-line circuit change but is deferred past the MVP.
+
+---
+
+## ADR-008: Default to Midnight Preview network instead of Preprod
+
+**Status:** Decided.
+
+**Context:** The app needs to connect to a Midnight testnet for credential issuance and proof generation. The Preprod testnet endpoints were returning 404 for UTXO lookups, indicating either a breaking change or instability. The Preview testnet provides a more stable, active environment with a funded Dust wallet available for MVP development.
+
+**Decision:** Connect to the Midnight **Preview** testnet by default. `MIDNIGHT_NETWORK_ID` and the corresponding RPC/Indexer URLs in `.env.local` are set to `preview`. `setNetworkId('preview')` is used for address derivation.
+
+**Consequences:** All credential issuances and proof generations will occur on the Preview network. If the Preview network becomes unstable, the application can be re-pointed to Preprod by updating `.env.local` and `MIDNIGHT_NETWORK_ID` (Preprod serves as the fallback).

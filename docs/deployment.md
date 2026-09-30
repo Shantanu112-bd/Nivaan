@@ -249,3 +249,15 @@ Redeploy both registries (and re-init Soroban) if any of these change, because t
 - The `BACKEND_ATTESTATION_SIGNING_KEY` (rotation) — the baked-in public key would no longer match.
 
 There is no upgrade path for the immutable `backendSigner` (EVM) or the one-time `init` (Soroban) by design — a key rotation means a fresh deploy with the new public key, then updating `SEPOLIA_REGISTRY_ADDRESS` / `SOROBAN_REGISTRY_CONTRACT_ID`.
+
+---
+
+## 5. Midnight / Minokawa Network Selection
+
+While the deployment of the Midnight compact contract is covered in Phase 5, the app must connect to the Midnight testnet to issue credentials. Per ADR-008, the application is configured to connect to the **Preview** testnet by default. The endpoints are set in the `.env.local`:
+- `MIDNIGHT_NETWORK_ID=preview`
+- `MIDNIGHT_NODE_RPC=https://rpc.preview.midnight.network`
+- `MIDNIGHT_INDEXER_HTTP=https://indexer.preview.midnight.network/api/v4/graphql`
+- `MIDNIGHT_INDEXER_WS=wss://indexer.preview.midnight.network/api/v4/graphql/ws`
+
+Preprod can be used as a fallback if Preview is unstable by modifying these variables to their `preprod` equivalents.
