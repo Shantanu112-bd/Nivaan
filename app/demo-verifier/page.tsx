@@ -160,9 +160,16 @@ function DemoVerifierContent() {
                       Access Denied
                     </div>
                     <h3 className="text-white text-[20px] font-medium mb-1">Requirement Failed</h3>
-                    <p className="text-white/50 text-[13px] font-[450] max-w-[240px]">
+                    <p className="text-white/50 text-[13px] font-[450] max-w-[240px] mb-6">
                       Proof does not satisfy minimum age or jurisdiction constraints.
                     </p>
+
+                    <Link
+                      href="/wallet"
+                      className="w-full nivaan-btn-secondary h-[46px] px-6 text-[14px] flex items-center justify-center"
+                    >
+                      Return to NIVAAN
+                    </Link>
                   </div>
                 )}
               </div>
