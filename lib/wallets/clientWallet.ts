@@ -6,6 +6,22 @@ export interface WalletSession {
   sessionExpiresAt: string;
 }
 
+async function authenticateWithLocalWallet(nonce: string) {
+  let demoKey = typeof window !== 'undefined' ? localStorage.getItem('nivaan_demo_wallet_pk') : null;
+  if (!demoKey) {
+    demoKey = '0x' + Array.from(crypto.getRandomValues(new Uint8Array(32)))
+      .map(b => b.toString(16).padStart(2, '0'))
+      .join('');
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('nivaan_demo_wallet_pk', demoKey);
+    }
+  }
+  const account = privateKeyToAccount(demoKey as `0x${string}`);
+  const walletAddress = account.address;
+  const signature = await account.signMessage({ message: nonce });
+  return { walletAddress, signature };
+}
+
 /**
  * Sign in using an injected Ethereum provider (window.ethereum) or a generated local demo wallet.
  */
@@ -22,68 +38,48 @@ export async function connectAndAuthenticate(): Promise<WalletSession> {
   }
   const { nonce } = await nonceRes.json();
 
-  let walletAddress: string;
-  let signature: string;
+  let walletAddress: string = '';
+  let signature: string = '';
 
   // 2. Check for window.ethereum
   const ethereum = typeof window !== 'undefined' ? (window as any).ethereum : null;
   if (ethereum) {
-    let accounts: string[];
+    let accounts: string[] = [];
     try {
       accounts = await ethereum.request({ method: 'eth_requestAccounts' });
     } catch (err: any) {
-      if (err?.code === 4001 || err?.message?.includes('User rejected')) {
-        throw new Error('Wallet connection canceled by user in MetaMask.');
-      }
-      throw err;
+      console.warn('[clientWallet] MetaMask connection prompt was dismissed. Continuing with instant demo wallet.');
+      const demo = await authenticateWithLocalWallet(nonce);
+      walletAddress = demo.walletAddress;
+      signature = demo.signature;
     }
 
-    if (!accounts || accounts.length === 0) {
-      throw new Error('No accounts selected in MetaMask.');
-    }
-    walletAddress = accounts[0];
+    if (accounts && accounts.length > 0 && !signature) {
+      walletAddress = accounts[0];
+      // EIP-1193 personal_sign standard expects hex-encoded UTF-8 message:
+      const hexMessage = `0x${Array.from(new TextEncoder().encode(nonce))
+        .map(b => b.toString(16).padStart(2, '0'))
+        .join('')}`;
 
-    // EIP-1193 personal_sign standard expects hex-encoded UTF-8 message:
-    const hexMessage = `0x${Array.from(new TextEncoder().encode(nonce))
-      .map(b => b.toString(16).padStart(2, '0'))
-      .join('')}`;
-
-    try {
-      signature = await ethereum.request({
-        method: 'personal_sign',
-        params: [hexMessage, walletAddress],
-      });
-    } catch (err: any) {
-      if (err?.code === 4001 || err?.message?.includes('User rejected')) {
-        throw new Error('Signature request canceled by user in MetaMask.');
-      }
       try {
         signature = await ethereum.request({
           method: 'personal_sign',
-          params: [walletAddress, hexMessage],
+          params: [hexMessage, walletAddress],
         });
-      } catch (err2: any) {
-        if (err2?.code === 4001 || err2?.message?.includes('User rejected')) {
-          throw new Error('Signature request canceled by user in MetaMask.');
-        }
-        signature = await ethereum.request({
-          method: 'personal_sign',
-          params: [nonce, walletAddress],
-        });
+      } catch (err: any) {
+        console.warn('[clientWallet] MetaMask signature was dismissed. Continuing with instant demo wallet.');
+        const demo = await authenticateWithLocalWallet(nonce);
+        walletAddress = demo.walletAddress;
+        signature = demo.signature;
       }
     }
-  } else {
-    // Demo key stored in localStorage so it persists across reloads in demo mode
-    let demoKey = localStorage.getItem('nivaan_demo_wallet_pk');
-    if (!demoKey) {
-      demoKey = '0x' + Array.from(crypto.getRandomValues(new Uint8Array(32)))
-        .map(b => b.toString(16).padStart(2, '0'))
-        .join('');
-      localStorage.setItem('nivaan_demo_wallet_pk', demoKey);
-    }
-    const account = privateKeyToAccount(demoKey as `0x${string}`);
-    walletAddress = account.address;
-    signature = await account.signMessage({ message: nonce });
+  }
+
+  // Fallback if not authenticated via MetaMask
+  if (!walletAddress || !signature) {
+    const demo = await authenticateWithLocalWallet(nonce);
+    walletAddress = demo.walletAddress;
+    signature = demo.signature;
   }
 
   // 3. Post to verify and set HttpOnly session cookie
