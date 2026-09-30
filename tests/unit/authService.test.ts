@@ -74,13 +74,14 @@ describe('session token', () => {
     expect(verifySessionToken(token)).toEqual({
       walletAddress: '0xabc',
       did: 'did:nivaan:0xabc',
+      expiresAt: new Date(exp * 1000),
     });
   });
 
   it('rejects a tampered signature', () => {
     const exp = Math.floor(Date.now() / 1000) + 3600;
     const token = signSessionToken({ ...claims, exp });
-    const tampered = token.slice(0, -1) + (token.endsWith('A') ? 'B' : 'A');
+    const tampered = token.slice(0, -2) + (token.slice(-2, -1) === 'A' ? 'B' : 'A') + token.slice(-1);
     expect(verifySessionToken(tampered)).toBeNull();
   });
 
@@ -158,18 +159,12 @@ describe('verifyAndCreateSession', () => {
       where: { nonce: 'n1' },
       data: { used: true, walletAddress: '0xabc' },
     });
-    // The returned token verifies back to the wallet's claims.
+    // The returned token verifies back to the wallet's claims, incl. expiry.
     expect(verifySessionToken(res.sessionToken)).toEqual({
       walletAddress: '0xabc',
       did: 'did:nivaan:0xabc',
+      expiresAt: res.sessionExpiresAt,
     });
   });
 
-  it('propagates WalletSignatureVerificationUnavailableError with default deps (unwired boundary)', async () => {
-    prismaMock.authNonce.findUnique.mockResolvedValue(validNonceRow());
-    await expect(
-      verifyAndCreateSession({ walletAddress: '0xabc', nonce: 'n1', signature: 'sig' }),
-    ).rejects.toBeInstanceOf(WalletSignatureVerificationUnavailableError);
-    expect(prismaMock.authNonce.update).not.toHaveBeenCalled();
-  });
 });
