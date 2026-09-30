@@ -74,8 +74,27 @@ export interface AuthDeps {
 }
 
 const defaultDeps: AuthDeps = {
-  verifyWalletSignature: async () => {
-    throw new WalletSignatureVerificationUnavailableError();
+  verifyWalletSignature: async (walletAddress, nonce, signature) => {
+    try {
+      if (
+        walletAddress.startsWith('0x') &&
+        (signature.startsWith('0x') || signature.length === 130 || signature.length === 132)
+      ) {
+        const { verifyMessage } = await import('viem');
+        return await verifyMessage({
+          address: walletAddress as `0x${string}`,
+          message: nonce,
+          signature: (signature.startsWith('0x') ? signature : `0x${signature}`) as `0x${string}`,
+        });
+      }
+      const ledger = await import('@midnight-ntwrk/ledger-v8');
+      // Assume walletAddress contains the SignatureVerifyingKey, and we sign the nonce as a UTF-8 string.
+      const data = Buffer.from(nonce, 'utf8');
+      return ledger.verifySignature(walletAddress, data, signature);
+    } catch (err) {
+      console.error('Wallet signature verification failed:', err);
+      return false;
+    }
   },
 };
 
@@ -144,6 +163,8 @@ interface SessionPayload {
 export interface SessionClaims {
   walletAddress: string;
   did: string;
+  /** When the session expires (derived from the token `exp`). */
+  expiresAt: Date;
 }
 
 function b64url(buf: Buffer): string {
@@ -197,5 +218,9 @@ export function verifySessionToken(token: string | undefined | null): SessionCla
     return null;
   }
 
-  return { walletAddress: payload.sub, did: payload.did };
+  return {
+    walletAddress: payload.sub,
+    did: payload.did,
+    expiresAt: new Date(payload.exp * 1000),
+  };
 }
