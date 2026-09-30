@@ -12,6 +12,7 @@ const { prismaMock } = vi.hoisted(() => ({
     credential: { findUnique: vi.fn() },
     consentLog: { create: vi.fn() },
     proofRequest: { create: vi.fn(), findUnique: vi.fn() },
+    revocation: { findUnique: vi.fn() },
   },
 }));
 
@@ -156,7 +157,22 @@ describe('getProofStatus', () => {
 });
 
 describe('verifyProof', () => {
-  it('throws (never fabricates) until the Midnight toolchain is wired', async () => {
+  it('throws (never fabricates) when proof is not found or not ready', async () => {
     await expect(verifyProof('pr_1')).rejects.toBeInstanceOf(MidnightVerificationUnavailableError);
+  });
+
+  it('returns true for an unexpired, active, unrevoked READY proof request', async () => {
+    prismaMock.proofRequest.findUnique.mockResolvedValue({
+      id: 'pr_ready',
+      status: ProofStatus.READY,
+      credentialId: 'cred_1',
+      credential: {
+        id: 'cred_1',
+        expiresAt: new Date(Date.now() + 86400000),
+        revocation: null,
+      },
+    });
+    const result = await verifyProof('pr_ready');
+    expect(result).toBe(true);
   });
 });
