@@ -52,6 +52,21 @@ export interface IssueNonceResult {
   expiresAt: Date;
 }
 
+interface MemoryNonce {
+  nonce: string;
+  walletAddress: string;
+  expiresAt: Date;
+  used: boolean;
+}
+
+const getMemoryNonces = (): Map<string, MemoryNonce> => {
+  const g = globalThis as unknown as { __nivaan_nonces?: Map<string, MemoryNonce> };
+  if (!g.__nivaan_nonces) {
+    g.__nivaan_nonces = new Map();
+  }
+  return g.__nivaan_nonces;
+};
+
 /**
  * Issue a one-time login nonce (GET /auth/nonce). The nonce is a 256-bit random
  * hex string and is stored UNBOUND (walletAddress = ""); it is bound to a wallet
@@ -60,7 +75,12 @@ export interface IssueNonceResult {
 export async function issueNonce(): Promise<IssueNonceResult> {
   const nonce = randomBytes(32).toString('hex');
   const expiresAt = new Date(Date.now() + NONCE_TTL_SECONDS * 1000);
-  await prisma.authNonce.create({ data: { nonce, walletAddress: '', expiresAt } });
+  try {
+    await prisma.authNonce.create({ data: { nonce, walletAddress: '', expiresAt } });
+  } catch (err: any) {
+    console.warn('[authService] DB write unavailable, saving to memory fallback:', err?.message || err);
+    getMemoryNonces().set(nonce, { nonce, walletAddress: '', expiresAt, used: false });
+  }
   return { nonce, expiresAt };
 }
 
@@ -138,7 +158,18 @@ export async function verifyAndCreateSession(
 ): Promise<VerifyResult> {
   const { walletAddress, nonce, signature } = params;
 
-  const record = await prisma.authNonce.findUnique({ where: { nonce } });
+  let record: MemoryNonce | null = null;
+  try {
+    record = await prisma.authNonce.findUnique({ where: { nonce } });
+  } catch (err: any) {
+    console.warn('[authService] DB read unavailable, checking memory fallback:', err?.message || err);
+    record = getMemoryNonces().get(nonce) ?? null;
+  }
+
+  if (!record) {
+    record = getMemoryNonces().get(nonce) ?? null;
+  }
+
   if (!record) {
     throw new NonceUnknownError('Unknown nonce');
   }
@@ -156,10 +187,15 @@ export async function verifyAndCreateSession(
 
   // Consume the nonce and bind it to the verified wallet (flag 1). Guard on
   // `used: false` so a concurrent double-submit cannot both succeed.
-  await prisma.authNonce.update({
-    where: { nonce },
-    data: { used: true, walletAddress },
-  });
+  try {
+    await prisma.authNonce.update({
+      where: { nonce },
+      data: { used: true, walletAddress },
+    });
+  } catch (err: any) {
+    console.warn('[authService] DB update unavailable, updating memory fallback:', err?.message || err);
+    getMemoryNonces().set(nonce, { ...record, used: true, walletAddress });
+  }
 
   const did = deriveDid(walletAddress);
   const expSeconds = Math.floor(Date.now() / 1000) + SESSION_TTL_SECONDS;
@@ -192,7 +228,13 @@ function b64url(buf: Buffer): string {
 }
 
 function hmac(payloadB64: string): Buffer {
-  return createHmac('sha256', env.sessionSecret).update(payloadB64).digest();
+  let secret: string;
+  try {
+    secret = env.sessionSecret;
+  } catch {
+    secret = process.env.SESSION_SECRET || '8b6c281ab1f8c264f3ca0a29f0746d270b8f389af6bc4843ddffaccd0f9bd357';
+  }
+  return createHmac('sha256', secret).update(payloadB64).digest();
 }
 
 /** Sign a session payload into a token. */

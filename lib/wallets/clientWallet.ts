@@ -13,7 +13,12 @@ export async function connectAndAuthenticate(): Promise<WalletSession> {
   // 1. Fetch fresh nonce
   const nonceRes = await fetch('/api/auth/nonce');
   if (!nonceRes.ok) {
-    throw new Error('Failed to obtain authentication nonce');
+    let msg = 'Failed to obtain authentication nonce';
+    try {
+      const data = await nonceRes.json();
+      if (data?.message) msg = `${msg} (${data.message})`;
+    } catch {}
+    throw new Error(msg);
   }
   const { nonce } = await nonceRes.json();
 

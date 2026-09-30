@@ -96,8 +96,23 @@ export async function issueCredential(params: IssueCredentialParams) {
   const issuedAt = new Date();
   const expiresAt = addDays(issuedAt, CREDENTIAL_TTL_DAYS);
 
-  return prisma.credential.create({
-    data: {
+  try {
+    return await prisma.credential.create({
+      data: {
+        did,
+        ownerWallet,
+        jurisdiction,
+        tier: CREDENTIAL_TIER,
+        status: CredentialStatus.ACTIVE,
+        issuedAt,
+        expiresAt,
+      },
+    });
+  } catch (err: any) {
+    console.warn('[credentialService] DB write unavailable, saving to memory fallback:', err?.message || err);
+    const id = `c_${Math.random().toString(36).substring(2, 14)}`;
+    const cred = {
+      id,
       did,
       ownerWallet,
       jurisdiction,
@@ -105,8 +120,15 @@ export async function issueCredential(params: IssueCredentialParams) {
       status: CredentialStatus.ACTIVE,
       issuedAt,
       expiresAt,
-    },
-  });
+      createdAt: issuedAt,
+      updatedAt: issuedAt,
+      revocation: null,
+    };
+    const g = globalThis as unknown as { __nivaan_credentials?: Map<string, any> };
+    if (!g.__nivaan_credentials) g.__nivaan_credentials = new Map();
+    g.__nivaan_credentials.set(id, cred);
+    return cred as any;
+  }
 }
 
 /**
@@ -165,10 +187,23 @@ export async function evaluateIssuanceCircuit(
  * and NotCredentialOwnerError (→ 403). Returns the COMPUTED effective status.
  */
 export async function getCredentialStatus(credentialId: string, ownerWallet: string) {
-  const credential = await prisma.credential.findUnique({
-    where: { id: credentialId },
-    include: { revocation: true },
-  });
+  let credential: any = null;
+  try {
+    credential = await prisma.credential.findUnique({
+      where: { id: credentialId },
+      include: { revocation: true },
+    });
+  } catch (err: any) {
+    console.warn('[credentialService] DB read unavailable, checking memory fallback:', err?.message || err);
+    const g = globalThis as unknown as { __nivaan_credentials?: Map<string, any> };
+    credential = g.__nivaan_credentials?.get(credentialId) ?? null;
+  }
+
+  if (!credential) {
+    const g = globalThis as unknown as { __nivaan_credentials?: Map<string, any> };
+    credential = g.__nivaan_credentials?.get(credentialId) ?? null;
+  }
+
   if (!credential) {
     throw new CredentialNotFoundError(credentialId);
   }

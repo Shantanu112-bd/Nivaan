@@ -23,7 +23,8 @@ export async function GET() {
       nonce,
       expiresAt: expiresAt.toISOString(),
     });
-  } catch {
-    return apiError(500, 'NONCE_GENERATION_FAILED', 'Failed to generate a login nonce.');
+  } catch (err: any) {
+    console.error('[GET /api/auth/nonce error]:', err);
+    return apiError(500, 'NONCE_GENERATION_FAILED', err?.message || 'Failed to generate a login nonce.');
   }
 }
