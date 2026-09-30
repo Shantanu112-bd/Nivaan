@@ -69,7 +69,7 @@ function ResultContent() {
   const isPass = resultData?.result === true;
 
   return (
-    <div className="flex flex-col items-center justify-center max-w-[680px] mx-auto w-full">
+    <div className="w-full max-w-[680px] flex flex-col items-center justify-center">
       {/* Workflow Navigation */}
       <WorkflowSteps currentStep="result" />
 
@@ -110,7 +110,7 @@ function ResultContent() {
             </p>
             <Link
               href="/wallet"
-              className="inline-flex items-center justify-center h-[46px] px-6 rounded-[14px] border border-white/20 bg-white/[0.05] text-white text-[14px] font-[450] hover:bg-white/10 transition-all"
+              className="nivaan-btn-secondary h-[46px] px-6 rounded-[14px] text-[14px]"
             >
               Return to Wallet
             </Link>
@@ -234,10 +234,10 @@ function ResultContent() {
             </div>
 
             {/* CTAs */}
-            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center items-center mt-2">
               <Link
                 href={`/demo-verifier?vid=${resultData.verificationId}`}
-                className="flex items-center justify-center gap-2 h-[48px] sm:h-[52px] px-6 rounded-[14px] border border-white/20 bg-white/[0.04] text-white text-[14px] sm:text-[15px] font-[450] transition-all hover:bg-white/[0.09] hover:border-white/30"
+                className="nivaan-btn-secondary h-[48px] sm:h-[52px] px-6 rounded-[14px] text-[14px] sm:text-[15px] w-full sm:w-auto"
               >
                 <span>View on Partner Portal</span>
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -248,7 +248,7 @@ function ResultContent() {
               </Link>
               <Link
                 href="/wallet"
-                className="flex items-center justify-center h-[48px] sm:h-[52px] px-7 bg-[#E9E9E9] rounded-[14px] text-[#0A0707] text-[14px] sm:text-[15px] font-[450] transition-all hover:bg-white hover:shadow-[0_0_25px_rgba(255,255,255,0.25)]"
+                className="nivaan-btn-primary h-[48px] sm:h-[52px] px-7 rounded-[14px] text-[14px] sm:text-[15px] w-full sm:w-auto"
               >
                 Return to Wallet
               </Link>

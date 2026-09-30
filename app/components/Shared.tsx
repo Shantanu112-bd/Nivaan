@@ -123,13 +123,13 @@ export function Nav({ isLoggedIn: initialIsLoggedIn }: { isLoggedIn?: boolean })
       </Animate>
 
       <Animate className="hidden lg:block" delay={200} direction="down">
-        <div className="h-[52px] p-[3px] bg-[rgba(0,0,0,0.4)] border border-white/[0.08] rounded-[14px] backdrop-blur-[17px] flex items-center gap-[5px] shadow-[0_4px_20px_rgba(0,0,0,0.3)]">
+        <div className="h-[50px] p-[2px] bg-black/40 border border-white/[0.08] rounded-[13px] backdrop-blur-[17px] flex items-center shadow-[0_4px_20px_rgba(0,0,0,0.3)]">
           {isLoggedIn ? (
-            <Link href="/wallet" className="flex items-center justify-center h-[46px] px-[24px] bg-[#E9E9E9] rounded-[11px] text-[#0A0707] text-[14px] font-[450] leading-[14px] hover:bg-white hover:shadow-[0_0_20px_rgba(255,255,255,0.2)] transition-all">
+            <Link href="/wallet" className="nivaan-btn-primary h-[44px] px-[22px] rounded-[11px] text-[13.5px]">
               Credential Wallet
             </Link>
           ) : (
-            <Link href="/onboarding" className="flex items-center justify-center h-[46px] px-[24px] bg-[#E9E9E9] rounded-[11px] text-[#0A0707] text-[14px] font-[450] leading-[14px] hover:bg-white hover:shadow-[0_0_20px_rgba(255,255,255,0.2)] transition-all">
+            <Link href="/onboarding" className="nivaan-btn-primary h-[44px] px-[22px] rounded-[11px] text-[13.5px]">
               Connect Wallet
             </Link>
           )}
@@ -163,11 +163,11 @@ export function Nav({ isLoggedIn: initialIsLoggedIn }: { isLoggedIn?: boolean })
           <div className="h-px bg-white/10 my-5" />
           <div className="flex flex-col gap-3">
             {isLoggedIn ? (
-              <Link href="/wallet" onClick={() => setIsOpen(false)} className="flex items-center justify-center h-[46px] w-full bg-[#E9E9E9] rounded-[11px] text-[#0A0707] text-[15px] font-[450] transition-colors">
+              <Link href="/wallet" onClick={() => setIsOpen(false)} className="nivaan-btn-primary h-[46px] w-full rounded-[12px] text-[15px]">
                 Open Wallet
               </Link>
             ) : (
-              <Link href="/onboarding" onClick={() => setIsOpen(false)} className="flex items-center justify-center h-[46px] w-full bg-[#E9E9E9] rounded-[11px] text-[#0A0707] text-[15px] font-[450] transition-colors">
+              <Link href="/onboarding" onClick={() => setIsOpen(false)} className="nivaan-btn-primary h-[46px] w-full rounded-[12px] text-[15px]">
                 Connect Wallet
               </Link>
             )}
@@ -210,10 +210,10 @@ export function PageContainer({ children, isLoggedIn = false, showVideo = false 
       )}
 
       {/* Main Content Layer */}
-      <div className="relative z-10 flex-1 flex flex-col">
+      <div className="relative z-10 flex-1 flex flex-col w-full">
         <Nav isLoggedIn={isLoggedIn} />
-        <main className="flex-1 flex flex-col justify-center py-6 sm:py-10">
-          <div className="w-full max-w-[1800px] mx-auto px-[20px] sm:px-[32px] md:px-[82px]">
+        <main className="flex-1 flex flex-col justify-center items-center py-6 sm:py-10 w-full">
+          <div className="w-full max-w-[1440px] mx-auto px-4 sm:px-8 md:px-12 flex flex-col items-center justify-center">
             {children}
           </div>
         </main>

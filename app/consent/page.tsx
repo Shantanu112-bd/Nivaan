@@ -38,7 +38,7 @@ export default function Consent() {
 
   return (
     <PageContainer isLoggedIn={isLoggedIn} showVideo={false}>
-      <div className="flex flex-col items-center justify-center max-w-[640px] mx-auto w-full">
+      <div className="w-full max-w-[640px] flex flex-col items-center justify-center">
         <WorkflowSteps currentStep="consent" />
 
         <Animate delay={200} direction="up" className="w-full text-center">
@@ -107,20 +107,29 @@ export default function Consent() {
               </div>
             </div>
 
-            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center items-center mt-2">
               <Link
                 href="/wallet"
-                className="flex items-center justify-center h-[48px] sm:h-[52px] px-[22px] sm:px-[28px] rounded-[14px] border border-white/20 bg-white/[0.03] text-white/80 text-[14px] sm:text-[15px] font-[450] transition-all hover:bg-white/10 hover:text-white hover:border-white/30"
+                className="nivaan-btn-secondary h-[48px] sm:h-[52px] px-[22px] sm:px-[28px] rounded-[14px] text-[14px] sm:text-[15px] w-full sm:w-auto"
               >
                 Decline
               </Link>
               <button
                 onClick={handleApprove}
                 disabled={loading}
-                className="flex items-center justify-center gap-2 h-[48px] sm:h-[52px] px-[26px] sm:px-[32px] bg-[#E9E9E9] rounded-[14px] text-[#0A0707] text-[14px] sm:text-[15px] font-[450] transition-all hover:bg-white hover:shadow-[0_0_25px_rgba(255,255,255,0.25)] disabled:opacity-50"
+                className="nivaan-btn-primary h-[48px] sm:h-[52px] px-[26px] sm:px-[32px] rounded-[14px] text-[14px] sm:text-[15px] w-full sm:w-auto"
               >
-                {loading ? 'Computing Hash...' : 'Approve & Continue'}
-                <ArrowRight className="w-4 h-4 text-black/70" />
+                {loading ? (
+                  <>
+                    <div className="w-4 h-4 border-2 border-black/30 border-t-black rounded-full animate-spin" />
+                    <span>Computing Hash...</span>
+                  </>
+                ) : (
+                  <>
+                    <span>Approve & Continue</span>
+                    <ArrowRight className="w-4 h-4 text-[#070A18]" />
+                  </>
+                )}
               </button>
             </div>
           </div>

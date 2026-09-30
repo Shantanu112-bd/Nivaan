@@ -139,7 +139,7 @@ function DemoVerifierContent() {
                     
                     <Link
                       href="/wallet"
-                      className="w-full flex items-center justify-center h-[46px] px-6 bg-[#E9E9E9] rounded-[12px] text-[#0A0707] text-[14px] font-[450] transition-all hover:bg-white hover:shadow-[0_0_20px_rgba(255,255,255,0.2)]"
+                      className="w-full nivaan-btn-primary h-[46px] px-6 text-[14px] flex items-center justify-center"
                     >
                       Return to NIVAAN
                     </Link>

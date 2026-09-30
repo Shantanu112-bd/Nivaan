@@ -65,10 +65,10 @@ export default function Wallet() {
 
   return (
     <PageContainer isLoggedIn={isLoggedIn} showVideo={false}>
-      <div className="flex flex-col max-w-[1080px] mx-auto w-full">
+      <div className="w-full max-w-[1080px] flex flex-col">
         <WorkflowSteps currentStep="wallet" />
 
-        <Animate delay={200} direction="up" className="w-full mb-8 sm:mb-10">
+        <Animate delay={200} direction="up" className="w-full mb-8 sm:mb-10 text-center sm:text-left">
           <div className="inline-flex items-center gap-2 bg-white/[0.04] border border-white/[0.08] px-3.5 py-1.5 rounded-full mb-4 shadow-[inset_0_1px_1px_rgba(255,255,255,0.06)]">
             <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
             <span className="text-white/80 text-[12.5px] font-[450] tracking-wide uppercase">Decentralized Identifier Wallet</span>
@@ -81,11 +81,11 @@ export default function Wallet() {
           </p>
         </Animate>
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8 items-stretch">
           {/* Main Credential Card */}
-          <div className="lg:col-span-7">
-            <Animate delay={400} direction="scale">
-              <div className="w-full rounded-[28px] sm:rounded-[36px] nivaan-glass-card p-6 sm:p-9 relative overflow-hidden flex flex-col justify-between min-h-[440px]">
+          <div className="lg:col-span-7 flex flex-col">
+            <Animate delay={400} direction="scale" className="h-full flex flex-col">
+              <div className="w-full rounded-[28px] sm:rounded-[36px] nivaan-glass-card p-6 sm:p-9 relative overflow-hidden flex flex-col justify-between flex-1 min-h-[440px]">
                 {/* Holographic glowing edge */}
                 <div className="absolute top-0 inset-x-0 h-[2px] bg-gradient-to-r from-indigo-500 via-emerald-400 to-cyan-500" />
                 
@@ -136,10 +136,10 @@ export default function Wallet() {
                     <div className="pt-2">
                       <Link
                         href="/consent"
-                        className="w-full flex items-center justify-center gap-2 h-[48px] sm:h-[52px] bg-[#E9E9E9] rounded-[14px] text-[#0A0707] text-[14.5px] sm:text-[15px] font-[450] transition-all hover:bg-white hover:shadow-[0_0_25px_rgba(255,255,255,0.25)] text-center"
+                        className="w-full nivaan-btn-primary h-[48px] sm:h-[52px] rounded-[14px] text-[14.5px] sm:text-[15px]"
                       >
                         <span>Generate Proof for Target Network</span>
-                        <ArrowRight className="w-4 h-4 text-black/70" />
+                        <ArrowRight className="w-4 h-4 text-[#070A18]" />
                       </Link>
                     </div>
                   </>
@@ -154,10 +154,10 @@ export default function Wallet() {
                     </p>
                     <Link
                       href="/onboarding"
-                      className="flex items-center justify-center gap-2 h-[46px] px-6 bg-[#E9E9E9] rounded-[12px] text-[#0A0707] text-[14px] font-[450] hover:bg-white transition-all shadow-[0_0_20px_rgba(255,255,255,0.15)]"
+                      className="nivaan-btn-primary h-[46px] px-7 rounded-[13px] text-[14px]"
                     >
                       <span>Issue Credential</span>
-                      <ArrowRight className="w-3.5 h-3.5" />
+                      <ArrowRight className="w-3.5 h-3.5 text-[#070A18]" />
                     </Link>
                   </div>
                 )}
@@ -166,9 +166,9 @@ export default function Wallet() {
           </div>
 
           {/* Stats & Specification Card (Matching Landing Page ZKStatsCard) */}
-          <div className="lg:col-span-5">
-            <Animate delay={500} direction="scale">
-              <div className="w-full rounded-[28px] sm:rounded-[36px] nivaan-glass-card p-6 sm:p-8 flex flex-col justify-between min-h-[440px]">
+          <div className="lg:col-span-5 flex flex-col">
+            <Animate delay={500} direction="scale" className="h-full flex flex-col">
+              <div className="w-full rounded-[28px] sm:rounded-[36px] nivaan-glass-card p-6 sm:p-8 flex flex-col justify-between flex-1 min-h-[440px]">
                 <div>
                   <div className="flex items-center gap-2 mb-6 pb-4 border-b border-white/[0.08]">
                     <ShieldCheck className="w-5 h-5 text-emerald-400" />

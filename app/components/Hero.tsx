@@ -32,7 +32,7 @@ export default function Hero() {
 
   return (
     <PageContainer isLoggedIn={isLoggedIn} showVideo={true}>
-      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-[40px] lg:gap-[48px]">
+      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-[40px] lg:gap-[48px] w-full">
         <div className="max-w-[593px]">
           <Animate delay={300} direction="up">
             <h1 className="text-white text-[36px] sm:text-[52px] md:text-[64px] lg:text-[72px] font-normal leading-[0.95] mb-5 sm:mb-8">
@@ -45,14 +45,14 @@ export default function Hero() {
             </p>
           </Animate>
           <Animate delay={700} direction="up">
-            <div className="flex flex-wrap gap-3 sm:gap-4">
+            <div className="flex flex-wrap gap-3 sm:gap-4 items-center">
               {!isLoggedIn && (
-                <Link href="/onboarding" className="flex items-center justify-center h-[46px] sm:h-[51px] px-[20px] sm:px-[27px] bg-[#E9E9E9] rounded-[12px] text-[#0A0707] text-[14px] sm:text-[15.5px] font-[450] leading-[15.5px] transition-opacity hover:opacity-90">
-                  Connect Wallet
+                <Link href="/onboarding" className="nivaan-btn-primary h-[48px] sm:h-[52px] px-[24px] sm:px-[30px] rounded-[13px] text-[14.5px] sm:text-[15.5px]">
+                  <span>Connect Wallet</span>
                 </Link>
               )}
-              <Link href={isLoggedIn ? "/prove" : "/onboarding"} className="flex items-center justify-center h-[46px] sm:h-[51px] px-[20px] sm:px-[27px] rounded-[12px] border border-white text-white text-[14px] sm:text-[15.5px] font-[450] leading-[15.5px] transition-opacity hover:opacity-80">
-                Generate Proof
+              <Link href={isLoggedIn ? "/prove" : "/onboarding"} className="nivaan-btn-secondary h-[48px] sm:h-[52px] px-[24px] sm:px-[30px] rounded-[13px] text-[14.5px] sm:text-[15.5px]">
+                <span>Generate Proof</span>
               </Link>
             </div>
           </Animate>

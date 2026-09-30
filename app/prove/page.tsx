@@ -108,7 +108,7 @@ export default function Prove() {
 
   return (
     <PageContainer isLoggedIn={isLoggedIn} showVideo={false}>
-      <div className="flex flex-col items-center justify-center max-w-[660px] mx-auto w-full">
+      <div className="w-full max-w-[660px] flex flex-col items-center justify-center">
         <WorkflowSteps currentStep="prove" />
 
         <Animate delay={200} direction="up" className="w-full text-center">
@@ -167,9 +167,9 @@ export default function Prove() {
                     {/* Soroban Card */}
                     <button 
                       onClick={() => setSelectedNetwork('soroban')}
-                      className={`relative flex flex-col items-start p-4 sm:p-5 rounded-[20px] border transition-all text-left group ${
+                      className={`relative flex flex-col items-start p-4 sm:p-5 rounded-[20px] border transition-all text-left group cursor-pointer ${
                         selectedNetwork === 'soroban' 
-                          ? 'bg-white/[0.08] border-white/40 shadow-[0_0_25px_rgba(255,255,255,0.08)]' 
+                          ? 'bg-emerald-500/10 border-emerald-400/50 shadow-[0_0_25px_rgba(52,211,153,0.15)] ring-1 ring-emerald-400/40' 
                           : 'bg-white/[0.02] border-white/10 hover:bg-white/[0.05] hover:border-white/20'
                       }`}
                     >
@@ -193,9 +193,9 @@ export default function Prove() {
                     {/* Sepolia Card */}
                     <button 
                       onClick={() => setSelectedNetwork('sepolia')}
-                      className={`relative flex flex-col items-start p-4 sm:p-5 rounded-[20px] border transition-all text-left group ${
+                      className={`relative flex flex-col items-start p-4 sm:p-5 rounded-[20px] border transition-all text-left group cursor-pointer ${
                         selectedNetwork === 'sepolia' 
-                          ? 'bg-white/[0.08] border-white/40 shadow-[0_0_25px_rgba(255,255,255,0.08)]' 
+                          ? 'bg-emerald-500/10 border-emerald-400/50 shadow-[0_0_25px_rgba(52,211,153,0.15)] ring-1 ring-emerald-400/40' 
                           : 'bg-white/[0.02] border-white/10 hover:bg-white/[0.05] hover:border-white/20'
                       }`}
                     >
@@ -236,19 +236,19 @@ export default function Prove() {
                   </div>
                 )}
 
-                <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
+                <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center items-center mt-2">
                   <Link
                     href="/wallet"
-                    className="flex items-center justify-center h-[48px] sm:h-[52px] px-[22px] sm:px-[28px] rounded-[14px] border border-white/20 bg-white/[0.03] text-white/80 text-[14px] sm:text-[15px] font-[450] transition-all hover:bg-white/10 hover:text-white hover:border-white/30"
+                    className="nivaan-btn-secondary h-[48px] sm:h-[52px] px-[22px] sm:px-[28px] rounded-[14px] text-[14px] sm:text-[15px] w-full sm:w-auto"
                   >
                     Cancel
                   </Link>
                   <button 
                     onClick={handleGenerate}
-                    className="flex items-center justify-center gap-2 h-[48px] sm:h-[52px] px-[26px] sm:px-[32px] bg-[#E9E9E9] rounded-[14px] text-[#0A0707] text-[14px] sm:text-[15px] font-[450] transition-all hover:bg-white hover:shadow-[0_0_25px_rgba(255,255,255,0.25)]"
+                    className="nivaan-btn-primary h-[48px] sm:h-[52px] px-[26px] sm:px-[32px] rounded-[14px] text-[14px] sm:text-[15px] w-full sm:w-auto"
                   >
                     <span>Generate Proof</span>
-                    <ArrowRight className="w-4 h-4 text-black/70" />
+                    <ArrowRight className="w-4 h-4 text-[#070A18]" />
                   </button>
                 </div>
               </>
