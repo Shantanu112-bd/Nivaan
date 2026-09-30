@@ -120,9 +120,44 @@ export async function issueCredential(params: IssueCredentialParams) {
  * docs/api-spec.md POST /credentials/issue).
  */
 export async function evaluateIssuanceCircuit(
-  _circuitProofInput: Record<string, unknown>,
+  circuitProofInput: Record<string, unknown>,
 ): Promise<boolean> {
-  throw new MidnightUnavailableError('evaluateIssuanceCircuit');
+  const qrData = typeof circuitProofInput?.aadhaarQrData === 'string'
+    ? circuitProofInput.aadhaarQrData
+    : typeof circuitProofInput?.qrData === 'string'
+    ? circuitProofInput.qrData
+    : null;
+
+  if (!qrData) {
+    throw new MidnightUnavailableError(
+      'evaluateIssuanceCircuit: Missing or invalid aadhaarQrData in circuitProofInput'
+    );
+  }
+
+  try {
+    const { Contract } = await import('../../contracts/midnight/managed/contract/index.js');
+    const { createNivaanWitnesses } = await import('../../contracts/midnight/witnesses');
+    const { createCircuitContext, createConstructorContext, dummyContractAddress } = await import('@midnight-ntwrk/compact-runtime');
+
+    const ZERO_COIN_KEY = '0'.repeat(64);
+    const witnesses = createNivaanWitnesses(new Date());
+    const contract = new Contract({
+      getAadhaarTestProof: (context: any) => witnesses.getAadhaarTestProof(context),
+    });
+    const { currentContractState, currentPrivateState, currentZswapLocalState } =
+      contract.initialState(createConstructorContext({ aadhaarQrData: qrData }, ZERO_COIN_KEY));
+    const ctx = createCircuitContext(
+      dummyContractAddress(),
+      currentZswapLocalState,
+      currentContractState,
+      currentPrivateState,
+    );
+    const { result } = contract.circuits.proveComplianceTier(ctx, BigInt(18));
+    return result;
+  } catch (err: any) {
+    if (err instanceof MidnightUnavailableError) throw err;
+    throw new CredentialCriteriaNotMetError(`Compliance circuit evaluation failed: ${err?.message || err}`);
+  }
 }
 
 /**
