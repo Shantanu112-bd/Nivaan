@@ -81,11 +81,31 @@ const defaultDeps: AuthDeps = {
         (signature.startsWith('0x') || signature.length === 130 || signature.length === 132)
       ) {
         const { verifyMessage } = await import('viem');
-        return await verifyMessage({
-          address: walletAddress as `0x${string}`,
-          message: nonce,
-          signature: (signature.startsWith('0x') ? signature : `0x${signature}`) as `0x${string}`,
-        });
+        const sig = (signature.startsWith('0x') ? signature : `0x${signature}`) as `0x${string}`;
+        const addr = walletAddress as `0x${string}`;
+
+        const tryVerify = async (msg: any): Promise<boolean> => {
+          try {
+            return await verifyMessage({ address: addr, message: msg, signature: sig });
+          } catch {
+            return false;
+          }
+        };
+
+        // 1. Verify as UTF-8 string message (standard)
+        if (await tryVerify(nonce)) return true;
+
+        // 2. Verify as raw bytes (if wallet treated 64-char hex string as 32 raw bytes)
+        if (/^[0-9a-fA-F]{64}$/.test(nonce)) {
+          if (await tryVerify({ raw: `0x${nonce}` })) return true;
+        }
+
+        // 3. Verify as 0x-prefixed hex string
+        if (!nonce.startsWith('0x')) {
+          if (await tryVerify(`0x${nonce}`)) return true;
+        }
+
+        return false;
       }
       const ledger = await import('@midnight-ntwrk/ledger-v8');
       // Assume walletAddress contains the SignatureVerifyingKey, and we sign the nonce as a UTF-8 string.

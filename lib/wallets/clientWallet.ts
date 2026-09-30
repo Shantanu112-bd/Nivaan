@@ -25,10 +25,29 @@ export async function connectAndAuthenticate(): Promise<WalletSession> {
   if (ethereum) {
     const accounts = await ethereum.request({ method: 'eth_requestAccounts' });
     walletAddress = accounts[0];
-    signature = await ethereum.request({
-      method: 'personal_sign',
-      params: [nonce, walletAddress],
-    });
+    // EIP-1193 personal_sign standard expects hex-encoded UTF-8 message:
+    const hexMessage = `0x${Array.from(new TextEncoder().encode(nonce))
+      .map(b => b.toString(16).padStart(2, '0'))
+      .join('')}`;
+
+    try {
+      signature = await ethereum.request({
+        method: 'personal_sign',
+        params: [hexMessage, walletAddress],
+      });
+    } catch {
+      try {
+        signature = await ethereum.request({
+          method: 'personal_sign',
+          params: [walletAddress, hexMessage],
+        });
+      } catch {
+        signature = await ethereum.request({
+          method: 'personal_sign',
+          params: [nonce, walletAddress],
+        });
+      }
+    }
   } else {
     // Demo key stored in localStorage so it persists across reloads in demo mode
     let demoKey = localStorage.getItem('nivaan_demo_wallet_pk');
