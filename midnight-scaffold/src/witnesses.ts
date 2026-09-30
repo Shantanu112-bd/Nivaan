@@ -1,5 +1,18 @@
 import { createHash } from 'node:crypto';
-import * as anonAadhaarCore from '@anon-aadhaar/core';
+import { createRequire } from 'node:module';
+import * as anonAadhaarCoreModule from '@anon-aadhaar/core';
+
+let anonAadhaarCore: any;
+try {
+  const req = typeof import.meta?.url === 'string' ? createRequire(import.meta.url) : createRequire(process.cwd() + '/index.js');
+  anonAadhaarCore = req('@anon-aadhaar/core');
+} catch {
+  anonAadhaarCore = anonAadhaarCoreModule;
+}
+if (anonAadhaarCore && !anonAadhaarCore.convertBigIntToByteArray && (anonAadhaarCore as any).default) {
+  anonAadhaarCore = (anonAadhaarCore as any).default;
+}
+
 import type { AadhaarAttrs, Witnesses } from '../contracts/managed/nivaan/contract/index.js';
 
 export class InvalidAadhaarQrError extends Error {

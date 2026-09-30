@@ -7,6 +7,7 @@ const nextConfig: NextConfig = {
     '@midnight-ntwrk/compact-runtime',
     '@midnight-ntwrk/midnight-js',
     '@midnight-ntwrk/wallet-sdk',
+    '@anon-aadhaar/core',
   ],
 };
 
