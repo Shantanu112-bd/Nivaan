@@ -1,0 +1,61 @@
+name: CI Pipeline
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test-and-build:
+    name: Test & Build
+    runs-on: ubuntu-latest
+
+    env:
+      DATABASE_URL: "postgresql://postgres:postgres@localhost:5432/nivaan"
+      SESSION_SECRET: "ci-secret-key-for-nivaan-test-suite-minimum-32-chars"
+      MIDNIGHT_NETWORK_ID: "preview"
+      MIDNIGHT_NODE_RPC: "https://rpc.preview.midnight.network"
+      MIDNIGHT_INDEXER_HTTP: "https://indexer.preview.midnight.network/api/v4/graphql"
+      MIDNIGHT_INDEXER_WS: "wss://indexer.preview.midnight.network/api/v4/graphql/ws"
+      PROOF_SERVER_URL: "http://127.0.0.1:6300"
+      ANON_AADHAAR_TEST_KEY: "test-key"
+      SOROBAN_RPC_URL: "https://soroban-testnet.stellar.org"
+      SOROBAN_REGISTRY_CONTRACT_ID: "CDCSDOZVW3W6YYBWGHPFRBCR2MCDIS25VCJVH2YUNLFARDSM6KISHYPN"
+      SEPOLIA_RPC_URL: "https://ethereum-sepolia-rpc.publicnode.com"
+      SEPOLIA_REGISTRY_ADDRESS: "0xC29310201F8b7426d006e2814578656cC8827bbc"
+      BACKEND_ATTESTATION_SIGNING_KEY: "0x1111111111111111111111111111111111111111111111111111111111111111"
+      ISSUER_ADMIN_KEY: "ci-test-issuer-admin-key"
+      DEMO_VERIFIER_KEY: "ci-test-demo-verifier-key"
+
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: ⚙️ Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: 📦 Install Root Dependencies
+        run: npm ci
+
+      - name: 🔨 Generate Prisma Client
+        run: npx prisma generate
+
+      - name: 🧪 Run Unit & ZK Circuit Tests (104 Tests)
+        run: npm test
+
+      - name: 🔐 Run EVM Smart Contract Tests (Hardhat)
+        run: |
+          cd contracts/evm
+          npm ci
+          npx hardhat test
+
+      - name: 🏗️ Verify Next.js Production Build
+        run: npm run build
