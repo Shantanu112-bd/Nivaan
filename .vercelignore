@@ -1,0 +1,11 @@
+node_modules
+.next
+.git
+contracts/**/target
+contracts/evm/artifacts
+contracts/evm/cache
+contracts/evm/out
+midnight-level-db
+midnight-scaffold
+.DS_Store
+*.log

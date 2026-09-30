@@ -47,3 +47,5 @@ midnight-level-db/
 *.ldb
 .midnight-*
 **/node_modules/
+.vercel
+.env*
