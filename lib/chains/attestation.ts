@@ -64,6 +64,38 @@ export function nowUnixSeconds(): number {
 }
 
 /**
+ * Encode a non-negative integer as a fixed-width big-endian byte buffer — the
+ * shared primitive both adapters use for the timestamp field, which is the ONE
+ * width that differs per chain (EVM `uint256` → 32 bytes; Soroban `u64` → 8
+ * bytes; see the "Canonical fields" note above). Uses BigInt so the full u64/u256
+ * range is representable, and rejects a value that is negative, non-integer, or
+ * too large for `byteLength` — a malformed field fails here rather than producing
+ * a silently-wrong digest the contract would reject.
+ */
+export function encodeUintBigEndian(value: number | bigint, byteLength: number): Buffer {
+  if (typeof value === 'number' && !Number.isInteger(value)) {
+    throw new RangeError(`encodeUintBigEndian: value ${value} is not an integer`);
+  }
+  if (!Number.isInteger(byteLength) || byteLength <= 0) {
+    throw new RangeError(`encodeUintBigEndian: byteLength ${byteLength} must be a positive integer`);
+  }
+  const v = typeof value === 'bigint' ? value : BigInt(value);
+  if (v < BigInt(0)) {
+    throw new RangeError(`encodeUintBigEndian: value ${v} must be non-negative`);
+  }
+  if (v >= BigInt(1) << BigInt(byteLength * 8)) {
+    throw new RangeError(`encodeUintBigEndian: value ${v} does not fit in ${byteLength} bytes`);
+  }
+  const out = Buffer.alloc(byteLength);
+  let rem = v;
+  for (let i = byteLength - 1; i >= 0; i--) {
+    out[i] = Number(rem & BigInt(0xff));
+    rem >>= BigInt(8);
+  }
+  return out;
+}
+
+/**
  * Backend-side freshness check, mirroring what each contract enforces on-chain.
  * Used to reject stale attestations before submitting (and unit-testable without
  * a chain). `now` defaults to the current time.
@@ -79,4 +111,12 @@ export function isTimestampFresh(timestamp: number, now: number = nowUnixSeconds
  */
 export function chainTagFor(fields: Pick<AttestationFields, 'chain'>): Buffer {
   return Buffer.from(fields.chain, 'ascii');
+}
+
+/**
+ * The 1-byte result field mixed into both digests: 0x01 for pass, 0x00 for fail
+ * (matches the `bool` encoding on both sides — see the "Canonical fields" note).
+ */
+export function resultByte(fields: Pick<AttestationFields, 'result'>): Buffer {
+  return Buffer.from([fields.result ? 0x01 : 0x00]);
 }
