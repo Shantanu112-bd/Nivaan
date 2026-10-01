@@ -8,6 +8,8 @@
 
 ---
 
+[![Live App](https://img.shields.io/badge/Live%20App-nivaan--iota.vercel.app-success?style=for-the-badge&logo=vercel&logoColor=white)](https://nivaan-iota.vercel.app/)
+[![Demo Video](https://img.shields.io/badge/Demo%20Video-Loom-625df5?style=for-the-badge&logo=loom&logoColor=white)](https://www.loom.com/share/7d6b88b702304097a9101054bfe135bf)
 [![Midnight Network](https://img.shields.io/badge/Built%20on-Midnight%20Network-0A0A10?style=for-the-badge&logo=shield&logoColor=white&labelColor=1a1a2e&color=7952ff)](https://midnight.network)
 [![Smart Contracts](https://img.shields.io/badge/Language-Compact%20%7C%20Rust%20%7C%20Solidity-blue?style=for-the-badge&logo=rust&logoColor=white)](https://midnight.network)
 [![CI/CD](https://github.com/Shantanu112-bd/Nivaan/actions/workflows/ci.yml/badge.svg)](https://github.com/Shantanu112-bd/Nivaan/actions/workflows/ci.yml)
@@ -28,7 +30,9 @@
 
 <br/>
 
-> **"This project is built on the Midnight Network."**
+> **"This project is built on the Midnight Network."**  
+> 🌐 **Live Web Application**: [https://nivaan-iota.vercel.app/](https://nivaan-iota.vercel.app/)  
+> 📹 **Loom Demo Video**: [https://www.loom.com/share/7d6b88b702304097a9101054bfe135bf](https://www.loom.com/share/7d6b88b702304097a9101054bfe135bf)
 
 </div>
 
@@ -38,11 +42,11 @@
 
 | Requirement | Status | Evidence / Link |
 | :--- | :---: | :--- |
-| **1. Working MVP Live on Preprod/Preview** | ✅ **VERIFIED** | Deployed Midnight Contract: [`18d036ffb45f...`](https://explorer.preview.midnight.network)<br/>Sepolia EVM Registry: [`0xC29310201F8b...`](https://sepolia.etherscan.io/address/0xC29310201F8b7426d006e2814578656cC8827bbc)<br/>Stellar Soroban Registry: [`CDCSDOZVW3W6...`](https://stellar.expert/explorer/testnet/contract/CDCSDOZVW3W6YYBWGHPFRBCR2MCDIS25VCJVH2YUNLFARDSM6KISHYPN) |
+| **1. Working MVP Live on Preprod/Preview** | ✅ **VERIFIED** | **Live App**: [https://nivaan-iota.vercel.app/](https://nivaan-iota.vercel.app/)<br/>Deployed Midnight Contract: [`18d036ffb45f...`](https://explorer.preview.midnight.network)<br/>Sepolia EVM Registry: [`0xC29310201F8b...`](https://sepolia.etherscan.io/address/0xC29310201F8b7426d006e2814578656cC8827bbc)<br/>Stellar Soroban Registry: [`CDCSDOZVW3W6...`](https://stellar.expert/explorer/testnet/contract/CDCSDOZVW3W6YYBWGHPFRBCR2MCDIS25VCJVH2YUNLFARDSM6KISHYPN) |
 | **2. Comprehensive Documentation** | ✅ **VERIFIED** | Architectural specs, threat models, API references, and step-by-step setup contained in this README and the [`docs/`](docs/) directory. |
 | **3. CI/CD Pipeline on Product Repo** | ✅ **VERIFIED** | Automated GitHub Actions workflow ([`ci.yml`](.github/workflows/ci.yml)) running static analysis, contract builds, and the full 104-test suite on every push and pull request. |
 | **4. Product X (Twitter) Profile** | ✅ **VERIFIED** | Official project announcement and updates: [@NivaanZK](https://x.com/NivaanZK) |
-| **5. Demo Video of the MVP** | ✅ **VERIFIED** | [Watch Full End-to-End Walkthrough Video](https://youtu.be/nivaan-demo-mvp) *(Demo showcases wallet sign-in, Anon Aadhaar QR ingestion, Halo2 witness proof generation, and cross-chain attestation)* |
+| **5. Demo Video of the MVP** | ✅ **VERIFIED** | [Watch Full End-to-End Walkthrough Video on Loom](https://www.loom.com/share/7d6b88b702304097a9101054bfe135bf) *(Demo showcases wallet sign-in, Anon Aadhaar QR ingestion, Halo2 witness proof generation, and cross-chain attestation)* |
 | **6. Minimum 15 Meaningful Commits** | ✅ **VERIFIED** | **35+ Granular, Atomic Commits** documenting every architectural milestone in sequence (circuits, contracts, signing, adapters, UI polish). |
 
 ---

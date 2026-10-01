@@ -31,7 +31,7 @@ export default function Hero() {
   const isLoggedIn = false;
 
   return (
-    <PageContainer isLoggedIn={isLoggedIn} showVideo={true}>
+    <PageContainer isLoggedIn={isLoggedIn}>
       <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-[40px] lg:gap-[48px] w-full">
         <div className="max-w-[593px]">
           <Animate delay={300} direction="up">

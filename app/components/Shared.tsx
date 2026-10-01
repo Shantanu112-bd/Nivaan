@@ -182,32 +182,20 @@ export function PageContainer({ children, isLoggedIn = false, showVideo = false 
   return (
     <section className="relative w-full min-h-screen flex flex-col bg-[#080A19] overflow-x-hidden">
       {/* Background Layer */}
-      {showVideo ? (
-        <video
-          className="absolute inset-0 w-full h-full object-cover"
-          src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260813_092641_de52eb87-daf2-41db-92cb-7a56eae012a5.mp4"
-          autoPlay
-          loop
-          muted
-          playsInline
-          suppressHydrationWarning
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        {/* Subtle cosmic ambient lights matching landing page atmosphere */}
+        <div className="absolute top-[-10%] left-[20%] w-[600px] h-[500px] rounded-full bg-gradient-to-br from-indigo-900/25 via-purple-900/15 to-transparent blur-[120px] animate-pulse-glow" />
+        <div className="absolute top-[30%] right-[10%] w-[500px] h-[450px] rounded-full bg-gradient-to-bl from-blue-900/20 via-cyan-950/15 to-transparent blur-[110px]" />
+        <div className="absolute bottom-[5%] left-[10%] w-[450px] h-[400px] rounded-full bg-gradient-to-tr from-emerald-950/20 via-slate-900/10 to-transparent blur-[100px]" />
+        {/* Subtle dot matrix grid for depth */}
+        <div 
+          className="absolute inset-0 opacity-[0.035]"
+          style={{
+            backgroundImage: 'radial-gradient(rgba(255, 255, 255, 0.8) 1px, transparent 1px)',
+            backgroundSize: '32px 32px'
+          }}
         />
-      ) : (
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          {/* Subtle cosmic ambient lights matching landing page atmosphere */}
-          <div className="absolute top-[-10%] left-[20%] w-[600px] h-[500px] rounded-full bg-gradient-to-br from-indigo-900/25 via-purple-900/15 to-transparent blur-[120px] animate-pulse-glow" />
-          <div className="absolute top-[30%] right-[10%] w-[500px] h-[450px] rounded-full bg-gradient-to-bl from-blue-900/20 via-cyan-950/15 to-transparent blur-[110px]" />
-          <div className="absolute bottom-[5%] left-[10%] w-[450px] h-[400px] rounded-full bg-gradient-to-tr from-emerald-950/20 via-slate-900/10 to-transparent blur-[100px]" />
-          {/* Subtle dot matrix grid for depth */}
-          <div 
-            className="absolute inset-0 opacity-[0.035]"
-            style={{
-              backgroundImage: 'radial-gradient(rgba(255, 255, 255, 0.8) 1px, transparent 1px)',
-              backgroundSize: '32px 32px'
-            }}
-          />
-        </div>
-      )}
+      </div>
 
       {/* Main Content Layer */}
       <div className="relative z-10 flex-1 flex flex-col w-full">
