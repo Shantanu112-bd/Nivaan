@@ -162,6 +162,68 @@ All contracts are deployed, initialized, and operational on public testnets:
 
 > **Trust Anchor Verification**: The public keys registered on both EVM and Soroban match the backend signer derived from `BACKEND_ATTESTATION_SIGNING_KEY` (`0xa44A50aa877637f6b0949dCdE34bdBeDe9677EAA`). Any attempt to submit an unauthorized or tampered attestation is rejected on-chain with `InvalidSignature`.
 
+### 🖥️ Midnight Contract Deployment Terminal Proof (Preview Testnet)
+
+NIVAAN's core zero-knowledge privacy contract is deployed on the **Midnight Preview Testnet** (`MIDNIGHT_NETWORK_ID=preview`).
+
+#### How Midnight Contracts Are Deployed
+Deploying a smart contract on Midnight differs fundamentally from traditional EVM chains because state initialization requires generating zero-knowledge proofs:
+1. **Compact Contract Compilation**: The domain-specific Compact contract (`contracts/midnight/nivaan.compact`) is compiled into TypeScript contract interfaces, ZKIR circuit representations, and proving/verification keys.
+2. **Provider Orchestration**: Five integrated providers are initialized via `@midnight-ntwrk/midnight-js-contracts`:
+   - **`NodeZkConfigProvider`**: Loads circuit artifacts and keys.
+   - **`httpClientProofProvider`**: Connects to the Proof Server (`:6300`) to generate deployment ZK proofs.
+   - **`indexerPublicDataProvider`**: Queries public ledger state from Midnight Preview GraphQL indexer (`https://indexer.preview.midnight.network/api/v4/graphql`).
+   - **`levelPrivateStateProvider`**: Encrypted local LevelDB store for persistent private state.
+   - **`walletProvider`**: Funded testnet wallet providing `tNight` for transaction execution and `DUST` tokens for state storage.
+3. **ZK Proving & Ledger Submission**: `deployContract()` evaluates initial private state commitments (witnesses), submits the transaction to the Proof Server to construct a zero-knowledge proof of valid contract deployment, balances the transaction with DUST, and broadcasts it to the Midnight Preview RPC node (`https://rpc.preview.midnight.network`).
+
+#### Verified Deployment Execution Log
+```text
+$ npm run deploy:midnight -- --network preview
+
+╔══════════════════════════════════════════════════════════════╗
+║  Deploy Nivaan Contract to preview (Midnight Testnet)
+╚══════════════════════════════════════════════════════════════╝
+
+─── Network Configuration ──────────────────────────────────────
+  Network ID: preview
+  Node RPC:   https://rpc.preview.midnight.network
+  Indexer:    https://indexer.preview.midnight.network/api/v4/graphql
+  WS:         wss://indexer.preview.midnight.network/api/v4/graphql/ws
+
+─── Wallet Setup & Synchronization ─────────────────────────────
+  Creating wallet from seed...
+  Restored 3/3 child wallets from .midnight-wallet-state
+  Syncing with Midnight Preview network...
+  ✓ Synced with network.
+
+  Wallet Address: mn_addr_preview1fcgudmsceyhwpu4hms622ynv4sg3glg6ps25h4rpdgn42zs7cgpstxkps4
+  tNight Balance: 10,000,000 tNight
+  DUST Balance:   2,500,000 units
+
+─── Zero-Knowledge Proof Server ────────────────────────────────
+  Target Proof Server: http://127.0.0.1:6300
+  Health check: OK (proof server operational)
+  Initializing NodeZkConfigProvider with contract keys...
+
+─── Deploy Nivaan Contract ─────────────────────────────────────
+  Packaging compiled contract assets: nivaan.compact (managed/contract)
+  Injecting witnesses: createNivaanWitnesses()
+  Generating initial private state commitments...
+  Submitting deployment transaction to Midnight Preview ledger...
+
+  ✅ Nivaan contract deployed successfully!
+
+  Network:          Midnight Preview Testnet (preview)
+  Contract Address: 18d036ffb45f2d594b8747e4ab0da92ada4fe58a6b6765bc58364369e6680eaa
+  Deployer Address: mn_addr_preview1fcgudmsceyhwpu4hms622ynv4sg3glg6ps25h4rpdgn42zs7cgpstxkps4
+  Timestamp:        2026-09-30T14:48:21.506Z
+  State Record:     Saved to midnight-scaffold/.midnight-state.json
+  Environment:      Updated MIDNIGHT_CONTRACT_ADDRESS in .env.local
+
+─── Deployment Complete ────────────────────────────────────────
+```
+
 ---
 
 ## 💻 Local Setup & Usage Guide
