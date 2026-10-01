@@ -17,15 +17,15 @@
 
 import { createHash } from 'node:crypto';
 
-import * as anonAadhaarCorePkg from '@anon-aadhaar/core';
+import * as anonAadhaarCore from '@anon-aadhaar/core';
 
-const anonAadhaarCore: any = (anonAadhaarCorePkg as any).convertBigIntToByteArray
-  ? anonAadhaarCorePkg
-  : (anonAadhaarCorePkg as any).default?.convertBigIntToByteArray
-  ? (anonAadhaarCorePkg as any).default
-  : (anonAadhaarCorePkg as any).default?.default?.convertBigIntToByteArray
-  ? (anonAadhaarCorePkg as any).default.default
-  : anonAadhaarCorePkg;
+function getCore(): any {
+  const p: any = anonAadhaarCore;
+  if (typeof p?.convertBigIntToByteArray === 'function') return p;
+  if (typeof p?.default?.convertBigIntToByteArray === 'function') return p.default;
+  if (typeof p?.default?.default?.convertBigIntToByteArray === 'function') return p.default.default;
+  return p;
+}
 
 import type { AadhaarAttrs, Witnesses } from './managed/contract/index.js';
 
@@ -66,10 +66,11 @@ function decodeSignedData(qrData: string): Uint8Array {
     throw new InvalidAadhaarQrError('QR data is not a valid integer string');
   }
 
-  const packed = anonAadhaarCore.convertBigIntToByteArray(asBigInt);
+  const core = getCore();
+  const packed = core.convertBigIntToByteArray(asBigInt);
   let decompressed: Uint8Array;
   try {
-    decompressed = anonAadhaarCore.decompressByteArray(packed);
+    decompressed = core.decompressByteArray(packed);
   } catch {
     throw new InvalidAadhaarQrError('QR data could not be decompressed');
   }
@@ -127,7 +128,8 @@ export function deriveJurisdictionCode(pincode: string): number {
  * field is reserved for. Uses node:crypto sha256, matching lib/chains/attestation.ts.
  */
 function computeNullifier(signedData: Uint8Array): Uint8Array {
-  const photo = anonAadhaarCore.extractPhoto(Array.from(signedData), signedData.length);
+  const core = getCore();
+  const photo = core.extractPhoto(Array.from(signedData), signedData.length);
   const photoBytes = Uint8Array.from(photo.bytes);
   return new Uint8Array(createHash('sha256').update(photoBytes).digest());
 }
@@ -139,7 +141,8 @@ function computeNullifier(signedData: Uint8Array): Uint8Array {
  */
 export function extractAadhaarAttrs(qrData: string, now: Date = new Date()): AadhaarAttrs {
   const signedData = decodeSignedData(qrData);
-  const id = anonAadhaarCore.returnFullId(signedData) as Record<string, string>;
+  const core = getCore();
+  const id = core.returnFullId(signedData) as Record<string, string>;
 
   const ageYears = computeAgeYears(id.DOB ?? '', now);
   const jurisdictionCode = deriveJurisdictionCode(id.PinCode ?? '');

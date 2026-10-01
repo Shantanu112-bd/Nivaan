@@ -19,8 +19,7 @@
       }
     ],
     "paths": {
-      "@/*": ["./*"],
-      "@anon-aadhaar/core": ["./contracts/midnight/types/anon-aadhaar-core.d.ts"]
+      "@/*": ["./*"]
     }
   },
   "include": [
