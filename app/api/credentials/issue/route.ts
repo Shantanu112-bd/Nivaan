@@ -90,16 +90,17 @@ export async function POST(request: Request) {
       },
       { status: 201 },
     );
-  } catch (err) {
+  } catch (err: any) {
+    console.error('[api/credentials/issue] Error:', err);
     if (err instanceof UnsupportedJurisdictionError) {
       return apiError(400, 'UNSUPPORTED_JURISDICTION', 'Unsupported jurisdiction.');
     }
     if (err instanceof CredentialCriteriaNotMetError) {
-      return apiError(422, 'CRITERIA_NOT_MET', 'Compliance criteria not met.');
+      return apiError(422, 'CRITERIA_NOT_MET', err?.message || 'Compliance criteria not met.');
     }
     if (err instanceof MidnightUnavailableError) {
-      return apiError(500, 'MIDNIGHT_UNREACHABLE', 'Midnight testnet is unreachable.');
+      return apiError(500, 'MIDNIGHT_UNREACHABLE', err?.message || 'Midnight testnet is unreachable.');
     }
-    return apiError(500, 'INTERNAL_ERROR', 'Internal server error.');
+    return apiError(500, 'INTERNAL_ERROR', err?.message || 'Internal server error.');
   }
 }
