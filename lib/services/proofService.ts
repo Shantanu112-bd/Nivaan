@@ -44,9 +44,8 @@ export async function generateMidnightProof(params: {
 }): Promise<string> {
   if (!globalThis.WebSocket) {
     try {
-      const { WebSocket } = await import('ws');
-      // @ts-expect-error WebSocket assignment
-      globalThis.WebSocket = WebSocket;
+      const wsModule = await import('ws');
+      (globalThis as any).WebSocket = (wsModule as any).WebSocket || (wsModule as any).default;
     } catch {
       // ignore
     }
