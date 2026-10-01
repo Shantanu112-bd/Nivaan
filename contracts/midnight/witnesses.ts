@@ -17,19 +17,15 @@
 
 import { createHash } from 'node:crypto';
 
-import { createRequire } from 'node:module';
-import * as anonAadhaarCoreModule from '@anon-aadhaar/core';
+import * as anonAadhaarCorePkg from '@anon-aadhaar/core';
 
-let anonAadhaarCore: any;
-try {
-  const req = typeof import.meta?.url === 'string' ? createRequire(import.meta.url) : createRequire(process.cwd() + '/index.js');
-  anonAadhaarCore = req('@anon-aadhaar/core');
-} catch {
-  anonAadhaarCore = anonAadhaarCoreModule;
-}
-if (anonAadhaarCore && !anonAadhaarCore.convertBigIntToByteArray && (anonAadhaarCore as any).default) {
-  anonAadhaarCore = (anonAadhaarCore as any).default;
-}
+const anonAadhaarCore: any = (anonAadhaarCorePkg as any).convertBigIntToByteArray
+  ? anonAadhaarCorePkg
+  : (anonAadhaarCorePkg as any).default?.convertBigIntToByteArray
+  ? (anonAadhaarCorePkg as any).default
+  : (anonAadhaarCorePkg as any).default?.default?.convertBigIntToByteArray
+  ? (anonAadhaarCorePkg as any).default.default
+  : anonAadhaarCorePkg;
 
 import type { AadhaarAttrs, Witnesses } from './managed/contract/index.js';
 
