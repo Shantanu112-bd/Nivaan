@@ -217,5 +217,5 @@ export async function getCredentialStatus(credentialId: string, ownerWallet: str
     new Date(),
   );
 
-  return { credentialId: credential.id, status, expiresAt: credential.expiresAt };
+  return { credentialId: credential.id, did: credential.did, status, expiresAt: credential.expiresAt };
 }
