@@ -9,12 +9,12 @@
 ---
 
 [![Live App](https://img.shields.io/badge/Live%20App-nivaan--iota.vercel.app-success?style=for-the-badge&logo=vercel&logoColor=white)](https://nivaan-iota.vercel.app/)
+[![Product X](https://img.shields.io/badge/Product%20X-@nivaan__zk-000000?style=for-the-badge&logo=x&logoColor=white)](https://x.com/nivaan_zk/all)
 [![Midnight Network](https://img.shields.io/badge/Built%20on-Midnight%20Network-0A0A10?style=for-the-badge&logo=shield&logoColor=white&labelColor=1a1a2e&color=7952ff)](https://midnight.network)
 [![Smart Contracts](https://img.shields.io/badge/Language-Compact%20%7C%20Rust%20%7C%20Solidity-blue?style=for-the-badge&logo=rust&logoColor=white)](https://midnight.network)
 [![CI/CD](https://github.com/Shantanu112-bd/Nivaan/actions/workflows/ci.yml/badge.svg)](https://github.com/Shantanu112-bd/Nivaan/actions/workflows/ci.yml)
 [![Test Suite](https://img.shields.io/badge/Unit%20Tests-104%2F104%20Passing-brightgreen?style=for-the-badge&logo=vitest&logoColor=white)](https://vitest.dev)
 [![Live on Testnets](https://img.shields.io/badge/Live-Midnight%20%7C%20Sepolia%20%7C%20Soroban-indigo?style=for-the-badge&logo=ethereum&logoColor=white)](https://sepolia.etherscan.io)
-[![X (Twitter)](https://img.shields.io/badge/X%20(Twitter)-@NivaanZK-black?style=for-the-badge&logo=x&logoColor=white)](https://x.com/NivaanZK)
 
 <br/>
 
@@ -30,7 +30,8 @@
 <br/>
 
 > **"This project is built on the Midnight Network."**  
-> 🌐 **Live Web Application**: [https://nivaan-iota.vercel.app/](https://nivaan-iota.vercel.app/)
+> 🌐 **Live Web Application**: [https://nivaan-iota.vercel.app/](https://nivaan-iota.vercel.app/)  
+> 𝕏 **Product X Profile**: [https://x.com/nivaan_zk/all](https://x.com/nivaan_zk/all) (`@nivaan_zk`)
 
 </div>
 
@@ -43,7 +44,7 @@
 | **1. Working MVP Live on Preprod/Preview** | ✅ **VERIFIED** | **Live App**: [https://nivaan-iota.vercel.app/](https://nivaan-iota.vercel.app/)<br/>Deployed Midnight Contract: [`18d036ffb45f...`](https://explorer.preview.midnight.network)<br/>Sepolia EVM Registry: [`0xC29310201F8b...`](https://sepolia.etherscan.io/address/0xC29310201F8b7426d006e2814578656cC8827bbc)<br/>Stellar Soroban Registry: [`CDCSDOZVW3W6...`](https://stellar.expert/explorer/testnet/contract/CDCSDOZVW3W6YYBWGHPFRBCR2MCDIS25VCJVH2YUNLFARDSM6KISHYPN) |
 | **2. Comprehensive Documentation** | ✅ **VERIFIED** | Architectural specs, threat models, API references, and step-by-step setup contained in this README and the [`docs/`](docs/) directory. |
 | **3. CI/CD Pipeline on Product Repo** | ✅ **VERIFIED** | Automated GitHub Actions workflow ([`ci.yml`](.github/workflows/ci.yml)) running static analysis, contract builds, and the full 104-test suite on every push and pull request. |
-| **4. Product X (Twitter) Profile** | ✅ **VERIFIED** | Official project announcement and updates: [@NivaanZK](https://x.com/NivaanZK) |
+| **4. Product X Profile** | ✅ **VERIFIED** | Official Product Updates & Announcements: [**@nivaan_zk on X**](https://x.com/nivaan_zk/all) |
 | **5. Demo Video of the MVP** | ✅ **VERIFIED** | [Loom Walkthrough](https://www.loom.com/share/7d6b88b702304097a9101054bfe135bf) *(End-to-end demo: wallet sign-in, Anon Aadhaar QR ingestion, Halo2 witness proof generation, and cross-chain attestation)* |
 | **6. Minimum 15 Meaningful Commits** | ✅ **VERIFIED** | **35+ Granular, Atomic Commits** documenting every architectural milestone in sequence (circuits, contracts, signing, adapters, UI polish). |
 
